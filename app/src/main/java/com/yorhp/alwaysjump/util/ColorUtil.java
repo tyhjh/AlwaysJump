@@ -3,6 +3,16 @@ package com.yorhp.alwaysjump.util;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 
+import com.yorhp.alwaysjump.util.color.HsvColorLike;
+import com.yorhp.alwaysjump.util.color.LabColorLike;
+import com.yorhp.alwaysjump.util.color.LikeColor;
+import com.yorhp.alwaysjump.util.color.RgbColorLike;
+
+import log.LogUtils;
+
+import static com.yorhp.alwaysjump.util.color.HsvColorLike.hsvAberration;
+import static com.yorhp.alwaysjump.util.color.LabColorLike.labAberration;
+
 /**
  * 作者：Tyhj on 2018/10/21 21:05
  * 邮箱：tyhj5@qq.com
@@ -12,66 +22,38 @@ import android.graphics.Color;
 
 public class ColorUtil {
 
-    public static int SAME_COLOR_CLASSICAL = 5;
+    HsvColorLike hsvColorLike = new HsvColorLike();
+    LabColorLike labColorLike = new LabColorLike();
+    RgbColorLike rgbColorLike = new RgbColorLike();
 
-    public static int SAME_COLOR_CHESS = 15;
 
-    //两种颜色相似
-    public static boolean colorLike(int clr, int clr2) {
+    //棋子的颜色
+    public static int chessColor = Color.parseColor("#2e2d41");
+    //棋子的可允许色差
+    public static int ABERRATION_CHESS_RGB = 10;
+    public static int ABERRATION_CHESS_LAB= 20;
+    //背景颜色的色容差
+    public static int ABERRATION_BG_RGB = 5;
+    //杂色板块的色差
+    public static int ABERRATION_MOTLEY_HSV = 12;
+    public static int ABERRATION_MOTLEY_LAB = 160;
 
-        int red2 = Color.red(clr2);
-        int green2 = Color.green(clr2);
-        int blue2 = Color.blue(clr2);
+    //略过棋子的色容差
+    public static int ABERRATION_CHESS_HSV = 4;
+    public static int ABERRATION_CHESS_LAB2= 30;
 
-        int red = Color.red(clr); // 取高两位
-        int green = Color.green(clr);// 取中两位
-        int blue = Color.blue(clr);// 取低两位
-        if (red == red2 && green == green2 && blue == blue2) {
-            return true;
-        }
-        if (Math.abs(red - red2) < SAME_COLOR_CLASSICAL && Math.abs(green - green2) < SAME_COLOR_CLASSICAL && Math.abs(blue - blue2) < SAME_COLOR_CLASSICAL) {
-            return true;
-        }
-        return false;
+
+    /**
+     * 对比颜色
+     *
+     * @param color1
+     * @param color2
+     * @param aberration
+     * @return
+     */
+    public static boolean colorLike(int color1, int color2, int aberration, LikeColor labLike) {
+        return labLike.isLike(color1, color2, aberration);
     }
-
-    //两种颜色相似，针对找出棋子所在位置的时候
-    public static boolean colorLikeChess(int clr, int clr2) {
-        int red2 = Color.red(clr2);
-        int green2 = Color.green(clr2);
-        int blue2 = Color.blue(clr2);
-
-        int red = Color.red(clr); // 取高两位
-        int green = Color.green(clr);// 取中两位
-        int blue = Color.blue(clr);// 取低两位
-
-        if (Math.abs(red - red2) < SAME_COLOR_CHESS && Math.abs(green - green2) < SAME_COLOR_CHESS && Math.abs(blue - blue2) < SAME_COLOR_CHESS) {
-            return true;
-        }
-        return false;
-    }
-
-    //x轴上的颜色一样
-    public static boolean isSameColorOnX(Bitmap bitmap, int x, int y, int distance) {
-        for (int i = 0; i < distance; i++) {
-            if (!colorLike(bitmap.getPixel(x + i, y), bitmap.getPixel(x + i + 1, y))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    //x轴上的颜色和指定颜色一样
-    public static boolean isSameColorOnX(Bitmap bitmap, int color, int x, int y, int distance) {
-        for (int i = 0; i < distance; i = i + 2) {
-            if (!colorLike(color, bitmap.getPixel(x + i, y))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
 
 
 }

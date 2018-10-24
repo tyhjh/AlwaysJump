@@ -12,6 +12,8 @@ import com.yorhp.recordlibrary.ScreenRecordUtil;
 
 import permison.FloatWindowManager;
 
+import static com.yorhp.alwaysjump.jump.Jump.testColor;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView btnProc, btn_test;
@@ -22,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+
+        //testColor();
 
         final Intent intent = new Intent(this, MyService.class);
         btnProc = (TextView) findViewById(R.id.btn_proc);

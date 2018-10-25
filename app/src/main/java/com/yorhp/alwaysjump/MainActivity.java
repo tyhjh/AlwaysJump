@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
-        //testColor();
+        testColor();
 
         final Intent intent = new Intent(this, MyService.class);
         btnProc = (TextView) findViewById(R.id.btn_proc);

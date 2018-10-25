@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,7 +49,16 @@ public class FileUitl {
         Paint paint2 = new Paint();
         paint2.setColor(Color.RED);
         paint2.setStyle(Paint.Style.FILL);
-        canvas.drawRect(x-4, y - 4, x + 4, y + 4, paint2);
+        canvas.drawRect(x - 4, y - 4, x + 4, y + 4, paint2);
+    }
+
+
+    public static void drawRect(Bitmap bitmap, Rect rect, int color) {
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint2 = new Paint();
+        paint2.setColor(color);
+        paint2.setStyle(Paint.Style.FILL);
+        canvas.drawRect(rect, paint2);
     }
 
 

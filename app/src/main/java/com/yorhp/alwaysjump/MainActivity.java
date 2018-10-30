@@ -7,12 +7,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.yorhp.alwaysjump.jump.Jump;
 import com.yorhp.alwaysjump.service.MyService;
+import com.yorhp.alwaysjump.util.AdbUtil;
 import com.yorhp.recordlibrary.ScreenRecordUtil;
 
 import permison.FloatWindowManager;
-
-import static com.yorhp.alwaysjump.jump.Jump.testColor;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,19 +24,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
-
-        testColor();
-
         final Intent intent = new Intent(this, MyService.class);
         btnProc = (TextView) findViewById(R.id.btn_proc);
+        btn_test = (TextView) findViewById(R.id.btn_test);
         ScreenRecordUtil.getInstance().screenShot(MainActivity.this, null);
         btnProc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (FloatWindowManager.getInstance().applyOrShowFloatWindow(MainActivity.this)) {
                     startService(intent);
-                    moveTaskToBack(true);
+                    //moveTaskToBack(true);
+                    AdbUtil.execShellCmd("input keyevent 3");
                 }
+            }
+        });
+        btn_test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Jump.testColor();
             }
         });
     }

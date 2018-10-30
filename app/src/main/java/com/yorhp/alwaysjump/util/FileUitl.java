@@ -49,9 +49,17 @@ public class FileUitl {
         Paint paint2 = new Paint();
         paint2.setColor(Color.RED);
         paint2.setStyle(Paint.Style.FILL);
-        canvas.drawRect(x - 4, y - 4, x + 4, y + 4, paint2);
+        canvas.drawRect(x - 1, y - 1, x + 1, y + 1, paint2);
     }
 
+
+    public static void drawPoint(Bitmap bitmap, int x, int y,int size) {
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint2 = new Paint();
+        paint2.setColor(Color.RED);
+        paint2.setStyle(Paint.Style.FILL);
+        canvas.drawRect(x - size, y - size, x + size, y + size, paint2);
+    }
 
     public static void drawRect(Bitmap bitmap, Rect rect, int color) {
         Canvas canvas = new Canvas(bitmap);

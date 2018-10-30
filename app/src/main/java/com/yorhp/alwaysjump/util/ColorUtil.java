@@ -26,6 +26,11 @@ public class ColorUtil {
 
     public static int chessColorTop = Color.parseColor("#383845");
 
+    public static int whiteCenterColor=Color.parseColor("#f5f5f5");
+
+    public static int whiteTableColor=Color.parseColor("#fafafa");
+
+
 
     //棋子的可允许色差
     public static int ABERRATION_CHESS_RGB = 10;

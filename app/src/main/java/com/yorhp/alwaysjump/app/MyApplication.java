@@ -14,7 +14,7 @@ import java.io.File;
 
 public class MyApplication extends Application {
 
-    public static String rootDir,savePointDir,saveChessDir;
+    public static String rootDir, savePointDir, saveChessDir, originTable;
 
     @Override
     public void onCreate() {
@@ -31,20 +31,21 @@ public class MyApplication extends Application {
             f1.mkdirs();
         }
 
-        saveChessDir=rootDir+ "chess/";
+        saveChessDir = rootDir + "chess/";
         File f5 = new File(saveChessDir);
         if (!f5.exists()) {
             f5.mkdirs();
         }
 
-        savePointDir=rootDir + "check/";
+        savePointDir = rootDir + "check/";
         File f6 = new File(savePointDir);
         if (!f6.exists()) {
             f6.mkdirs();
         }
 
 
-        File f9 = new File(rootDir + "grade/");
+        originTable = rootDir + "originTable/";
+        File f9 = new File(originTable);
         if (!f9.exists()) {
             f9.mkdirs();
         }

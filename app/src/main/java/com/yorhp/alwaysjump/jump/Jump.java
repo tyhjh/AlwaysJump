@@ -1,11 +1,14 @@
 package com.yorhp.alwaysjump.jump;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.SystemClock;
 
 import com.yorhp.alwaysjump.app.MyApplication;
+import com.yorhp.alwaysjump.util.AdbUtil;
 import com.yorhp.alwaysjump.util.ColorUtil;
 import com.yorhp.alwaysjump.util.FileUitl;
 import com.yorhp.alwaysjump.util.TimeUtil;
@@ -47,6 +50,11 @@ public class Jump {
     public static int bitmapWidth = 1080;
     public static int bitmapHeight = 1920;
 
+    public static int MIN_DISTENCE = 80;
+    public static int MAX_DISTENCE = 400;
+
+    public static int WHITETIME = 2100;
+
     HsvColorLike hsvColorLike;
     LabColorLike labColorLike;
     RgbColorLike rgbColorLike;
@@ -63,31 +71,33 @@ public class Jump {
 
     Point startPoint, jumpPoint;
 
+    public static boolean start = false;
+
     public void start() {
-        TimeUtil.setTime();
-        Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
-        bitmapWidth = bitmap.getWidth();
-        bitmapHeight = bitmap.getHeight();
+        while (start) {
+            TimeUtil.setTime();
+            Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
+            bitmapWidth = bitmap.getWidth();
+            bitmapHeight = bitmap.getHeight();
+            Bitmap chessBitmap = FileUitl.cropBitmapY(bitmap, chessStart, chessHeight);
+            startPoint = findNowPoint(chessBitmap);
+            //保存背景颜色
+            setBgColor(chessBitmap.getPixel(0, 0));
+            //清除棋子像素，去除干扰
+            Rect rectChess = new Rect(startPoint.x - 40, (int) (startPoint.y + bitmapHeight * chessStart - 190), startPoint.x + 40, (int) (startPoint.y + bitmapHeight * chessStart + 30));
+            FileUitl.drawRect(bitmap, rectChess, bgColor);
+        /*FileUitl.drawPoint(chessBitmap, startPoint.x, startPoint.y);
+        FileUitl.bitmapToPath(chessBitmap, MyApplication.saveChessDir + System.currentTimeMillis() + ".png");*/
 
-        Bitmap chessBitmap = FileUitl.cropBitmapY(bitmap, chessStart, chessHeight);
-        TimeUtil.spendTime("截图");
+            Bitmap jumpBitmap = FileUitl.cropBitmapY(bitmap, jumpStart, jumpHeight);
+            //FileUitl.bitmapToPath(jumpBitmap, MyApplication.originTable + System.currentTimeMillis() + ".png");
 
-        startPoint = findNowPoint(chessBitmap);
-        TimeUtil.spendTime("startPoint");
-
-        setBgColor(chessBitmap.getPixel(0, 0));
-        Rect rectChess = new Rect(startPoint.x - 40, (int) (startPoint.y + bitmapHeight * chessStart - 190), startPoint.x + 40, (int) (startPoint.y + bitmapHeight * chessStart + 30));
-        FileUitl.drawRect(bitmap, rectChess, bgColor);
-
-
-        FileUitl.drawPoint(chessBitmap, startPoint.x, startPoint.y);
-        FileUitl.bitmapToPath(chessBitmap, MyApplication.saveChessDir + System.currentTimeMillis() + ".png");
-        Bitmap jumpBitmap = FileUitl.cropBitmapY(bitmap, jumpStart, jumpHeight);
-
-        TimeUtil.setTime();
-        jumpPoint = findJumpPoint(jumpBitmap);
-        TimeUtil.spendTime("jumpPoint");
-
+            jumpPoint = findJumpPoint(jumpBitmap);
+            int time = getJumpTime(startPoint, jumpPoint);
+            AdbUtil.execShellCmd(ADB_COMMEND + time);
+            SystemClock.sleep(time + WHITETIME);
+            TimeUtil.spendTime("跳一次时间");
+        }
     }
 
     /**
@@ -102,37 +112,100 @@ public class Jump {
 
         Point topPoint = getTopPoint(bitmap);
 
-        Point leftPoint = getLeftPoint(bitmap, topPoint.x, topPoint.y+5);
-        Point rightPoint = getRightPoint(bitmap, topPoint.x, topPoint.y+5);
+        Point leftPoint = getLeftPoint(bitmap, topPoint.x, topPoint.y + 5);
+        Point rightPoint = getRightPoint(bitmap, topPoint.x, topPoint.y + 5);
 
         LogUtils.e("topPoint：" + topPoint.x + "，" + topPoint.y);
         LogUtils.e("leftPoint：" + leftPoint.x + "，" + leftPoint.y);
         LogUtils.e("rightPoint：" + rightPoint.x + "，" + rightPoint.y);
 
 
-        double leathLeft =  Math.sqrt(Math.pow(leftPoint.x - topPoint.x, 2) + Math.pow(leftPoint.y - topPoint.y, 2));
+        double leathLeft = Math.sqrt(Math.pow(leftPoint.x - topPoint.x, 2) + Math.pow(leftPoint.y - topPoint.y, 2));
         double leathRight = Math.sqrt(Math.pow(rightPoint.x - topPoint.x, 2) + Math.pow(rightPoint.y - topPoint.y, 2));
 
-        if (leathLeft / leathRight > 1.3 || leathRight / leathLeft > 1.3) {
-            if (leathLeft > leathRight) {
-                jumpPoint = new Point(topPoint.x, leftPoint.y);
-            } else {
-                jumpPoint = new Point(topPoint.x, rightPoint.y);
+        int pointY = topPoint.y + MIN_DISTENCE;
+        if (leftPoint.y < topPoint.y) {
+            pointY = rightPoint.y;
+            jumpPoint = new Point(topPoint.x, pointY);
+        } else if (rightPoint.y < topPoint.y) {
+            pointY = leftPoint.y;
+            jumpPoint = new Point(topPoint.x, pointY);
+        } else if (leathLeft / leathRight > 1.3 || leathRight / leathLeft > 1.3) {
+            if ((leathRight < MIN_DISTENCE || leathRight > MAX_DISTENCE) && (leathLeft < MIN_DISTENCE || leathLeft > MAX_DISTENCE)) {
+                pointY = topPoint.y + 100;
+            } else if (leathRight > leathLeft && leathRight > MIN_DISTENCE && leathRight < MAX_DISTENCE) {
+                pointY = rightPoint.y;
+            } else if (leathLeft > leathRight && leathLeft > MIN_DISTENCE && leathLeft < MAX_DISTENCE) {
+                pointY = leftPoint.y;
+            } else if (leathRight < MIN_DISTENCE && leathLeft > MIN_DISTENCE) {
+                pointY = leftPoint.y;
+            } else if (leathRight > MIN_DISTENCE && leathLeft < MIN_DISTENCE) {
+                pointY = rightPoint.y;
+            } else if (leathRight > MAX_DISTENCE && leathLeft < MAX_DISTENCE) {
+                pointY = leftPoint.y;
+            } else if (leathLeft > MAX_DISTENCE && leathRight < MAX_DISTENCE) {
+                pointY = rightPoint.y;
             }
-
+            jumpPoint = new Point(topPoint.x, pointY);
         } else {
             jumpPoint = new Point((leftPoint.x + rightPoint.x) / 2, (leftPoint.y + rightPoint.y) / 2);
         }
 
-        Bitmap bitmap1 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-        FileUitl.drawPoint(bitmap1, topPoint.x, topPoint.y);
 
-        FileUitl.drawPoint(bitmap1, leftPoint.x, leftPoint.y);
-        FileUitl.drawPoint(bitmap1, rightPoint.x, rightPoint.y);
-        FileUitl.drawPoint(bitmap1, jumpPoint.x, jumpPoint.y);
+        jumpPoint = findCenterPoint(bitmap, jumpPoint);
 
-        FileUitl.bitmapToPath(bitmap1, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+        //Bitmap bitmap1 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        //FileUitl.drawPoint(bitmap1, topPoint.x, topPoint.y + 8, 1);
+
+        //FileUitl.drawPoint(bitmap1, leftPoint.x, leftPoint.y);
+        //FileUitl.drawPoint(bitmap1, rightPoint.x, rightPoint.y);
+        //FileUitl.drawPoint(bitmap1, jumpPoint.x, jumpPoint.y);
+
+        //FileUitl.bitmapToPath(bitmap1, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
         return jumpPoint;
+    }
+
+    //找特殊，中心白点
+    private Point findCenterPoint(Bitmap bitmap, Point jumpPoint) {
+        if (!ColorUtil.colorLike(ColorUtil.whiteCenterColor, bitmap.getPixel(jumpPoint.x, jumpPoint.y), 3, labColorLike)) {
+            return jumpPoint;
+        }
+
+        int top = jumpPoint.y, bottom = jumpPoint.y, left = jumpPoint.x, right = jumpPoint.x;
+
+        for (int x = jumpPoint.x; x < (MIN_DISTENCE / 3); x++) {
+            if (!ColorUtil.colorLike(ColorUtil.whiteCenterColor, bitmap.getPixel(x, jumpPoint.y), 3, labColorLike)) {
+                right = x;
+                break;
+            }
+        }
+
+
+        for (int x = jumpPoint.x; x > jumpPoint.x - (MIN_DISTENCE / 3); x--) {
+            if (!ColorUtil.colorLike(ColorUtil.whiteCenterColor, bitmap.getPixel(x, jumpPoint.y), 3, labColorLike)) {
+                left = x;
+                break;
+            }
+        }
+
+        int pointX = (left + right) / 2;
+
+        for (int y = jumpPoint.y; y < jumpPoint.y + (MIN_DISTENCE / 3); y++) {
+            if (!ColorUtil.colorLike(ColorUtil.whiteCenterColor, bitmap.getPixel(pointX, y), 3, labColorLike)) {
+                bottom = y;
+                break;
+            }
+        }
+
+        for (int y = jumpPoint.y; y > jumpPoint.y - (MIN_DISTENCE / 3); y--) {
+            if (!ColorUtil.colorLike(ColorUtil.whiteCenterColor, bitmap.getPixel(pointX, y), 3, labColorLike)) {
+                top = y;
+                break;
+            }
+        }
+        int pointY = (top + bottom) / 2;
+        return new Point(pointX, pointY);
+
     }
 
 
@@ -151,14 +224,39 @@ public class Jump {
         LogUtils.e("getLeftPoint，isPure：" + isPure);
         for (int x = startX; x > 0; x = x - 3) {
             int y = startY + (int) ((startX - x) * k);
+
             if (y >= bitmap.getHeight()) {
                 return new Point(x + 3, startY - (int) ((startX - x) * k));
             }
             if (isPure) {
+                //颜色和纯色不一样
                 if (!ColorUtil.colorLike(bitmap.getPixel(x, y), color, ABERRATION_BG_LAB, labColorLike)) {
-                    return new Point(x, y);
+                    //判断是否和背景一样，一样直接返回
+                    if (isLikeBg2(bitmap, x, y)) {
+                        LogUtils.e("getLeftPoint：" + "和背景一样");
+                        return new Point(x, y);
+                    } else {//获取再次到纯色的点
+                        LogUtils.e("getLeftPoint：获取再次到纯色的点");
+                        for (int i = x; i > 0; i = i - 3) {
+                            int j = (int) (y + (x - i) * k);
+                            if (j >= bitmap.getHeight()) {
+                                LogUtils.e("getLeftPoint：" + ">= bitmap.getHeight()");
+                                return new Point(x, y);
+                            }
+                            if (ColorUtil.colorLike(bitmap.getPixel(i, j), color, ABERRATION_BG_LAB, labColorLike)) {
+                                x = i;
+                                LogUtils.e("getLeftPoint：找到纯色的点：" + x);
+                                break;
+                            }
+                            if (i <= 3) {
+                                return new Point(x, y);
+                            }
+                        }
+                    }
+
                 }
             } else {
+                //颜色和背景一样
                 if (isOutLeft(bitmap, x, y)) {
                     return new Point(x, y);
                 }
@@ -166,6 +264,7 @@ public class Jump {
         }
         return new Point(0, startY + (int) ((startX) * k));
     }
+
 
     /**
      * 是否从左边出去了
@@ -176,7 +275,7 @@ public class Jump {
      * @return
      */
     private boolean isOutLeft(Bitmap bitmap, int startX, int startY) {
-        for (int x = startX-5; x > startX - 10; x--) {
+        for (int x = startX - 5; x > startX - 10; x--) {
             if (x > 0 && !isLikeBg2(bitmap, x, startY)) {
                 return false;
             }
@@ -205,8 +304,30 @@ public class Jump {
             }
             if (isPure) {
                 if (!ColorUtil.colorLike(bitmap.getPixel(x, y), color, ABERRATION_BG_LAB, labColorLike)) {
-                    return new Point(x, y);
+                    //判断是否和背景一样，一样直接返回
+                    if (isLikeBg2(bitmap, x, y)) {
+                        LogUtils.e("getRightPoint：" + "和背景一样");
+                        return new Point(x, y);
+                    } else {//获取再次到纯色的点
+                        LogUtils.e("getRightPoint：获取再次到纯色的点");
+                        for (int i = x; i < width; i = i + 3) {
+                            int j = (int) (y + (i - x) * k);
+                            if (j >= bitmap.getHeight()) {
+                                LogUtils.e("getRightPoint：" + ">= bitmap.getHeight()");
+                                return new Point(x, y);
+                            }
+                            if (ColorUtil.colorLike(bitmap.getPixel(i, j), color, ABERRATION_BG_LAB, labColorLike)) {
+                                x = i;
+                                LogUtils.e("getRightPoint：找到纯色的点：" + x);
+                                break;
+                            }
+                            if (i >= width - 3) {
+                                return new Point(x, y);
+                            }
+                        }
+                    }
                 }
+
             } else {
                 if (isOutRight(bitmap, x, y)) {
                     return new Point(x, y);
@@ -225,7 +346,7 @@ public class Jump {
      * @return
      */
     private boolean isOutRight(Bitmap bitmap, int startX, int startY) {
-        for (int x = startX+5; x < startX + 10; x++) {
+        for (int x = startX + 5; x < startX + 10; x++) {
             if (x < bitmap.getWidth() && !isLikeBg2(bitmap, x, startY)) {
                 return false;
             }
@@ -402,8 +523,8 @@ public class Jump {
      * @return
      */
     private int getJumpTime(Point startPoint, Point jumpPoint) {
-        int distence = (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2))
-                + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2));
+        int distence = (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2)
+                + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)));
         int time = 0;
         double k = (distence * (-0.00020) + 1.485);
         if (k > 1.416) {
@@ -417,14 +538,17 @@ public class Jump {
 
     public static void testColor() {
 
-        int color1 = Color.parseColor("#4a4b54");
-        int color2 = Color.parseColor("#484848");
+        int color1 = Color.parseColor("#717171");
+        int color2 = Color.parseColor("#8d8f96");
         LogUtils.e("HSV颜色空间计算颜色距离：" + hsvAberration(color1, color2));
         LogUtils.e("LAB颜色空间计算色差：" + labAberration(color1, color2));
         rgbAberration(color1, color2);
+        Jump jump = new Jump();
+        Bitmap bitmap = BitmapFactory.decodeFile(MyApplication.originTable + "test.png");
+        jump.setBgColor(bitmap.getPixel(0, 0));
+        jump.findJumpPoint(bitmap);
 
 
-        //new Jump().findJumpPoint(BitmapFactory.decodeFile(MyApplication.savePointDir + "test.png"));
     }
 
 
@@ -441,16 +565,17 @@ public class Jump {
         return ColorUtil.colorLike(bitmap.getPixel(x, y), bgColor, ABERRATION_BG_LAB2, labColorLike);
     }
 
+
     private boolean isLikeChess(Bitmap bitmap, int x, int y) {
         return ColorUtil.colorLike(bitmap.getPixel(x, y), chessColor, ABERRATION_CHESS_LAB, labColorLike);
     }
 
     //判读是不是纯色
-    private  boolean isPure(Bitmap bitmap, int clr, int x, int y) {
-        int height = 8;
-        int width = 6;
+    private boolean isPure(Bitmap bitmap, int clr, int x, int y) {
+        int height = 10;
+        int width = 10;
         for (int i = 1; i < width; i++) {
-            if ((x - i > 0) && (ColorUtil.colorLike(bitmap.getPixel(x+i, y+height), clr, ABERRATION_BG_LAB, labColorLike)|| ColorUtil.colorLike(bitmap.getPixel(x-i, y+height), clr, ABERRATION_BG_LAB, labColorLike))) {
+            if ((x - i > 0) && (!ColorUtil.colorLike(bitmap.getPixel(x + i, y + height), clr, ABERRATION_BG_LAB, labColorLike) || !ColorUtil.colorLike(bitmap.getPixel(x - i, y + height), clr, ABERRATION_BG_LAB, labColorLike))) {
                 return false;
             }
         }

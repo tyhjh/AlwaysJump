@@ -99,13 +99,23 @@ public class MyService extends Service {
             public void onClick(View view) {
                 //btnView3.setVisibility(View.INVISIBLE);
 
-                jump.start();
+                if (!Jump.start) {
+                    Jump.start = true;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            jump.start();
+                        }
+                    }).start();
+                } else {
+                    Jump.start = false;
+                }
             }
         });
         windowManager.addView(btnView3, params3);
     }
 
-    Jump jump=new Jump();
+    Jump jump = new Jump();
 
     private void showNotification(Context context, int id, String title, String text) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);

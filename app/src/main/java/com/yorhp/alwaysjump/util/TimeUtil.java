@@ -17,7 +17,7 @@ public class TimeUtil {
     }
 
     public void spendTime(String tag) {
-        LogUtils.e(tag + "，花费时间为：" + (System.currentTimeMillis() - currentTime));
+        LogUtils.e(tag + "，" + (System.currentTimeMillis() - currentTime));
         setTime();
     }
 

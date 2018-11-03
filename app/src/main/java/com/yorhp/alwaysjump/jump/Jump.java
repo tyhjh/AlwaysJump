@@ -450,9 +450,11 @@ public class Jump {
                         setBgColor(bitmap.getPixel(x, y));
                     }
                 } else {
-                    //如果被干扰、🎵、棋子遮挡
+                    //如果被干扰、🎵
                     if (isDisturb(bitmap, x, y)) {
                         x = getOutX(bitmap, x, y);
+                        LogUtils.e("检测到干扰，x："+x);
+                        continue;
                     }
                     //计算出去的坐标
                     int centerX = (x + getOutX(bitmap, x, y)) / 2;
@@ -470,20 +472,13 @@ public class Jump {
 
     //是否是🎵干扰
     private boolean isDisturb(Bitmap bitmap, int startX, int startY) {
-
-        for (int y = startY; y < startY + 20; y = y + ignorePoint) {
-            if (isLikeBg(bitmap, startX, y)) {
+        for (int y = startY; y < startY + 20; y = y + 1) {
+            if (isLikeBg(bitmap, startX, y)
+                    || isLikeBg(bitmap, startX + (y-startY)/3, y)
+                    || isLikeBg(bitmap, startX -  (y-startY)/3, y)) {
                 return true;
             }
         }
-
-        for (int x = startX; x < startX + 20; x = x + ignorePoint) {
-            if (isLikeBg(bitmap, startX, startY + 30)) {
-                return true;
-            }
-        }
-
-
         return false;
     }
 
@@ -587,7 +582,7 @@ public class Jump {
         int distence = (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2)
                 + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)));
         int time = 0;
-        double k = (distence * (-0.00020) + 1.485);
+        double k = (distence * (-0.00020) + 1.48555);
         if (k > 1.416) {
             k = 1.416;
         }

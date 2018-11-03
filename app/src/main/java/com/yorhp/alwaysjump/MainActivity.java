@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.yorhp.alwaysjump.app.Const;
 import com.yorhp.alwaysjump.jump.Jump;
 import com.yorhp.alwaysjump.service.MyService;
 import com.yorhp.alwaysjump.util.AdbUtil;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         btnProc = (TextView) findViewById(R.id.btn_proc);
         btn_test = (TextView) findViewById(R.id.btn_test);
         ScreenRecordUtil.getInstance().screenShot(MainActivity.this, null);
+        Jump.setStart_model(Const.RUN_MODEL_SAVE_PIC);
         btnProc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

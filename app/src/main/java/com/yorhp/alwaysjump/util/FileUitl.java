@@ -44,22 +44,19 @@ public class FileUitl {
         return file;
     }
 
-    public static void drawPoint(Bitmap bitmap, int x, int y) {
-        Canvas canvas = new Canvas(bitmap);
-        Paint paint2 = new Paint();
-        paint2.setColor(Color.RED);
-        paint2.setStyle(Paint.Style.FILL);
-        canvas.drawRect(x - 1, y - 1, x + 1, y + 1, paint2);
+    public static void drawSmallPoint(Bitmap bitmap, int x, int y, int color) {
+        drawPoint(bitmap, x, y, 1, color);
     }
 
 
-    public static void drawPoint(Bitmap bitmap, int x, int y,int size) {
+    public static void drawPoint(Bitmap bitmap, int x, int y, int size, int color) {
         Canvas canvas = new Canvas(bitmap);
         Paint paint2 = new Paint();
-        paint2.setColor(Color.RED);
+        paint2.setColor(color);
         paint2.setStyle(Paint.Style.FILL);
         canvas.drawRect(x - size, y - size, x + size, y + size, paint2);
     }
+
 
     public static void drawRect(Bitmap bitmap, Rect rect, int color) {
         Canvas canvas = new Canvas(bitmap);

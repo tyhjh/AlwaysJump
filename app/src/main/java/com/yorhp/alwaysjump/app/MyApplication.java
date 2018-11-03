@@ -16,6 +16,8 @@ public class MyApplication extends Application {
 
     public static String rootDir, savePointDir, saveChessDir, originTable;
 
+    public static boolean isDebug=true;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -50,10 +52,6 @@ public class MyApplication extends Application {
             f9.mkdirs();
         }
 
-        File f7 = new File(rootDir + "opencv_me/");
-        if (!f7.exists()) {
-            f7.mkdirs();
-        }
 
     }
 

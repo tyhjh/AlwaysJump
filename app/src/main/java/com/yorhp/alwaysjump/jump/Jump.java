@@ -7,6 +7,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.SystemClock;
 
+import com.yorhp.alwaysjump.app.Const;
 import com.yorhp.alwaysjump.app.MyApplication;
 import com.yorhp.alwaysjump.util.AdbUtil;
 import com.yorhp.alwaysjump.util.ColorUtil;
@@ -38,9 +39,10 @@ public class Jump {
 
     //斜率
     double k = 0.5773;
-
     //背景颜色
     public int bgColor;
+
+    public static int start_model = Const.RUN_MODEL_QUICK_JUMP;
 
     private static String ADB_COMMEND = "input touchscreen swipe 660 1600 660 1600 ";
     public static double chessHeight = 0.25;//截图比例
@@ -74,30 +76,53 @@ public class Jump {
     public static boolean start = false;
 
     public void start() {
-        while (start) {
-            TimeUtil.setTime();
-            Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
-            bitmapWidth = bitmap.getWidth();
-            bitmapHeight = bitmap.getHeight();
-            Bitmap chessBitmap = FileUitl.cropBitmapY(bitmap, chessStart, chessHeight);
-            startPoint = findNowPoint(chessBitmap);
-            //保存背景颜色
-            setBgColor(chessBitmap.getPixel(0, 0));
-            //清除棋子像素，去除干扰
-            Rect rectChess = new Rect(startPoint.x - 40, (int) (startPoint.y + bitmapHeight * chessStart - 190), startPoint.x + 40, (int) (startPoint.y + bitmapHeight * chessStart + 30));
-            FileUitl.drawRect(bitmap, rectChess, bgColor);
+
+        switch (start_model) {
+            case Const.RUN_MODEL_QUICK_JUMP:
+            case Const.RUN_MODEL_SAVE_PIC:
+                while (start) {
+                    justJump();
+                }
+                break;
+            case Const.RUN_MODEL_SINGLE_JUMP:
+                justJump();
+                break;
+            case Const.RUN_MODEL_TEST_PIC:
+                Bitmap bitmap = BitmapFactory.decodeFile(MyApplication.saveChessDir + "1.png");
+                if (bitmap == null)
+                    return;
+                setBgColor(bitmap.getPixel(0, 0));
+                findJumpPoint(bitmap);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void justJump() {
+        TimeUtil.setTime();
+        Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
+        bitmapWidth = bitmap.getWidth();
+        bitmapHeight = bitmap.getHeight();
+        Bitmap chessBitmap = FileUitl.cropBitmapY(bitmap, chessStart, chessHeight);
+        startPoint = findNowPoint(chessBitmap);
+        //保存背景颜色
+        setBgColor(chessBitmap.getPixel(0, 0));
+        //清除棋子像素，去除干扰
+        Rect rectChess = new Rect(startPoint.x - 40, (int) (startPoint.y + bitmapHeight * chessStart - 190), startPoint.x + 40, (int) (startPoint.y + bitmapHeight * chessStart + 30));
+        FileUitl.drawRect(bitmap, rectChess, bgColor);
         /*FileUitl.drawPoint(chessBitmap, startPoint.x, startPoint.y);
         FileUitl.bitmapToPath(chessBitmap, MyApplication.saveChessDir + System.currentTimeMillis() + ".png");*/
-
-            Bitmap jumpBitmap = FileUitl.cropBitmapY(bitmap, jumpStart, jumpHeight);
-            //FileUitl.bitmapToPath(jumpBitmap, MyApplication.originTable + System.currentTimeMillis() + ".png");
-
-            jumpPoint = findJumpPoint(jumpBitmap);
-            int time = getJumpTime(startPoint, jumpPoint);
-            AdbUtil.execShellCmd(ADB_COMMEND + time);
-            SystemClock.sleep(time + WHITETIME);
-            TimeUtil.spendTime("跳一次时间");
+        Bitmap jumpBitmap = FileUitl.cropBitmapY(bitmap, jumpStart, jumpHeight);
+        if (start_model != Const.RUN_MODEL_QUICK_JUMP) {
+            FileUitl.bitmapToPath(jumpBitmap, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
         }
+
+        jumpPoint = findJumpPoint(jumpBitmap);
+        int time = getJumpTime(startPoint, jumpPoint);
+        AdbUtil.execShellCmd(ADB_COMMEND + time);
+        SystemClock.sleep(time + WHITETIME);
+        TimeUtil.spendTime("跳一次时间");
     }
 
     /**
@@ -112,8 +137,8 @@ public class Jump {
 
         Point topPoint = getTopPoint(bitmap);
 
-        Point leftPoint = getLeftPoint(bitmap, topPoint.x, topPoint.y + 5);
-        Point rightPoint = getRightPoint(bitmap, topPoint.x, topPoint.y + 5);
+        Point leftPoint = getLeftPoint(bitmap, topPoint.x, topPoint.y + 2);
+        Point rightPoint = getRightPoint(bitmap, topPoint.x, topPoint.y + 2);
 
         LogUtils.e("topPoint：" + topPoint.x + "，" + topPoint.y);
         LogUtils.e("leftPoint：" + leftPoint.x + "，" + leftPoint.y);
@@ -152,17 +177,20 @@ public class Jump {
         }
 
 
-        jumpPoint = findCenterPoint(bitmap, jumpPoint);
+        Point precisePoint = findCenterPoint(bitmap, jumpPoint);
 
-        //Bitmap bitmap1 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-        //FileUitl.drawPoint(bitmap1, topPoint.x, topPoint.y + 8, 1);
+        if (start_model != Const.RUN_MODEL_QUICK_JUMP) {
+            Bitmap bitmap1 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            FileUitl.drawSmallPoint(bitmap1, topPoint.x, topPoint.y, Color.RED);
+            FileUitl.drawSmallPoint(bitmap1, leftPoint.x, leftPoint.y, Color.YELLOW);
+            FileUitl.drawSmallPoint(bitmap1, rightPoint.x, rightPoint.y, Color.BLUE);
+            FileUitl.drawSmallPoint(bitmap1, jumpPoint.x, jumpPoint.y, Color.GREEN);
+            FileUitl.drawSmallPoint(bitmap1, precisePoint.x, precisePoint.y, Color.BLACK);
+            FileUitl.bitmapToPath(bitmap1, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+        }
 
-        //FileUitl.drawPoint(bitmap1, leftPoint.x, leftPoint.y);
-        //FileUitl.drawPoint(bitmap1, rightPoint.x, rightPoint.y);
-        //FileUitl.drawPoint(bitmap1, jumpPoint.x, jumpPoint.y);
 
-        //FileUitl.bitmapToPath(bitmap1, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
-        return jumpPoint;
+        return precisePoint;
     }
 
     //找特殊，中心白点
@@ -173,7 +201,7 @@ public class Jump {
 
         int top = jumpPoint.y, bottom = jumpPoint.y, left = jumpPoint.x, right = jumpPoint.x;
 
-        for (int x = jumpPoint.x; x < (MIN_DISTENCE / 3); x++) {
+        for (int x = jumpPoint.x; x < jumpPoint.x + (MIN_DISTENCE / 3); x++) {
             if (!ColorUtil.colorLike(ColorUtil.whiteCenterColor, bitmap.getPixel(x, jumpPoint.y), 3, labColorLike)) {
                 right = x;
                 break;
@@ -257,30 +285,12 @@ public class Jump {
                 }
             } else {
                 //颜色和背景一样
-                if (isOutLeft(bitmap, x, y)) {
+                if (isLikeBg2(bitmap, x, y)) {
                     return new Point(x, y);
                 }
             }
         }
         return new Point(0, startY + (int) ((startX) * k));
-    }
-
-
-    /**
-     * 是否从左边出去了
-     *
-     * @param bitmap
-     * @param startX
-     * @param startY
-     * @return
-     */
-    private boolean isOutLeft(Bitmap bitmap, int startX, int startY) {
-        for (int x = startX - 5; x > startX - 10; x--) {
-            if (x > 0 && !isLikeBg2(bitmap, x, startY)) {
-                return false;
-            }
-        }
-        return true;
     }
 
 
@@ -329,29 +339,13 @@ public class Jump {
                 }
 
             } else {
-                if (isOutRight(bitmap, x, y)) {
+                if (isLikeBg2(bitmap, x, y)) {
                     return new Point(x, y);
                 }
+
             }
         }
         return new Point(width, startY + (int) ((width - startX) * k));
-    }
-
-    /**
-     * 是否从右边出去了
-     *
-     * @param bitmap
-     * @param startX
-     * @param startY
-     * @return
-     */
-    private boolean isOutRight(Bitmap bitmap, int startX, int startY) {
-        for (int x = startX + 5; x < startX + 10; x++) {
-            if (x < bitmap.getWidth() && !isLikeBg2(bitmap, x, startY)) {
-                return false;
-            }
-        }
-        return true;
     }
 
 
@@ -383,9 +377,9 @@ public class Jump {
         }
 
 
-        ignorePoint = 5;
+        ignorePoint = 3;
         for (int y = firstPoint.y; y < height; y = y + ignorePoint) {
-            for (int x = 0; x < width; x = x + 5) {
+            for (int x = 0; x < width; x = x + 3) {
                 if (isLikeBg(bitmap, x, y)) {
                     if (x == 20) {
                         setBgColor(bitmap.getPixel(x, y));
@@ -438,7 +432,7 @@ public class Jump {
      * @return
      */
     private int getOutY(Bitmap bitmap, int x, int startY) {
-        for (int y = startY; y > 0; y = y - ignorePoint) {
+        for (int y = startY; y > 0; y = y - 1) {
             if (isLikeBg(bitmap, x, y)) {
                 return y;
             }
@@ -456,7 +450,7 @@ public class Jump {
      */
     private int getOutX(Bitmap bitmap, int startX, int y) {
         int distence = bitmap.getWidth();
-        for (int x = startX; x < distence; x = x + ignorePoint) {
+        for (int x = startX; x < distence; x = x + 1) {
             if (isLikeBg(bitmap, x, y)) {
                 return x;
             }
@@ -537,18 +531,11 @@ public class Jump {
 
 
     public static void testColor() {
-
         int color1 = Color.parseColor("#717171");
         int color2 = Color.parseColor("#8d8f96");
         LogUtils.e("HSV颜色空间计算颜色距离：" + hsvAberration(color1, color2));
         LogUtils.e("LAB颜色空间计算色差：" + labAberration(color1, color2));
         rgbAberration(color1, color2);
-        Jump jump = new Jump();
-        Bitmap bitmap = BitmapFactory.decodeFile(MyApplication.originTable + "test.png");
-        jump.setBgColor(bitmap.getPixel(0, 0));
-        jump.findJumpPoint(bitmap);
-
-
     }
 
 
@@ -572,8 +559,8 @@ public class Jump {
 
     //判读是不是纯色
     private boolean isPure(Bitmap bitmap, int clr, int x, int y) {
-        int height = 10;
-        int width = 10;
+        int height = 6;
+        int width = 8;
         for (int i = 1; i < width; i++) {
             if ((x - i > 0) && (!ColorUtil.colorLike(bitmap.getPixel(x + i, y + height), clr, ABERRATION_BG_LAB, labColorLike) || !ColorUtil.colorLike(bitmap.getPixel(x - i, y + height), clr, ABERRATION_BG_LAB, labColorLike))) {
                 return false;
@@ -582,5 +569,11 @@ public class Jump {
         return true;
     }
 
+    public static int getStart_model() {
+        return start_model;
+    }
 
+    public static void setStart_model(int start_model) {
+        Jump.start_model = start_model;
+    }
 }

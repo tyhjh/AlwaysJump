@@ -15,7 +15,10 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.yorhp.alwaysjump.R;
+import com.yorhp.alwaysjump.app.Const;
 import com.yorhp.alwaysjump.jump.Jump;
+
+import toast.ToastUtil;
 
 public class MyService extends Service {
     public MyService() {
@@ -98,6 +101,16 @@ public class MyService extends Service {
             @Override
             public void onClick(View view) {
                 //btnView3.setVisibility(View.INVISIBLE);
+                ToastUtil.toast(MyService.this, "have fun");
+                if (Jump.start_model >= Const.RUN_MODEL_TEST_PIC) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            jump.start();
+                        }
+                    }).start();
+                    return;
+                }
 
                 if (!Jump.start) {
                     Jump.start = true;

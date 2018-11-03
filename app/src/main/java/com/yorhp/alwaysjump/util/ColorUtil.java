@@ -30,6 +30,10 @@ public class ColorUtil {
 
     public static int whiteTableColor=Color.parseColor("#fafafa");
 
+    public static int buleOverColor=Color.parseColor("#0198ff");
+
+    public static int greenOverColor=Color.parseColor("#00c776");
+
 
 
     //棋子的可允许色差

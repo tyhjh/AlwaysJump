@@ -18,6 +18,9 @@ import com.yorhp.alwaysjump.util.color.LabColorLike;
 import com.yorhp.alwaysjump.util.color.RgbColorLike;
 import com.yorhp.recordlibrary.ScreenRecordUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import log.LogUtils;
 
 import static com.yorhp.alwaysjump.util.ColorUtil.ABERRATION_BG_LAB;
@@ -38,9 +41,14 @@ import static com.yorhp.alwaysjump.util.color.RgbColorLike.rgbAberration;
 public class Jump {
 
     //斜率
-    double k = 0.5773;
+    static double k = 0.5773;
     //背景颜色
     public int bgColor;
+
+    static Point overBluePoint = new Point(200, 1580);
+    static Point overGreenPoint = new Point(520, 1565);
+
+    List<Bitmap> bitmapList = new ArrayList<>();
 
     public static int start_model = Const.RUN_MODEL_QUICK_JUMP;
 
@@ -55,11 +63,12 @@ public class Jump {
     public static int MIN_DISTENCE = 40;
     public static int MAX_DISTENCE = 400;
 
-    public static int WHITETIME = 2200;
+    public static int WHITETIME = 2400;
 
     HsvColorLike hsvColorLike;
     LabColorLike labColorLike;
     RgbColorLike rgbColorLike;
+
 
     public Jump() {
         hsvColorLike = new HsvColorLike();
@@ -107,6 +116,18 @@ public class Jump {
         recognitionTime.setTime();
 
         Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
+
+        if (ColorUtil.colorLike(bitmap.getPixel(overBluePoint.x, overBluePoint.y), ColorUtil.buleOverColor, 10, labColorLike)
+                && ColorUtil.colorLike(bitmap.getPixel(overGreenPoint.x, overGreenPoint.y), ColorUtil.greenOverColor, 10, labColorLike)) {
+            FileUitl.bitmapToPath(bitmap, MyApplication.gradeDir + System.currentTimeMillis() + ".png");
+            AdbUtil.execShellCmd(ADB_COMMEND + 10);
+            SystemClock.sleep(WHITETIME);
+            saveBitmap();
+            return;
+        } else {
+            removeBitmap();
+        }
+
         bitmapWidth = bitmap.getWidth();
         bitmapHeight = bitmap.getHeight();
         Bitmap chessBitmap = FileUitl.cropBitmapY(bitmap, chessStart, chessHeight);
@@ -122,7 +143,7 @@ public class Jump {
         FileUitl.bitmapToPath(chessBitmap, MyApplication.saveChessDir + System.currentTimeMillis() + ".png");*/
         Bitmap jumpBitmap = FileUitl.cropBitmapY(bitmap, jumpStart, jumpHeight);
         if (start_model != Const.RUN_MODEL_QUICK_JUMP) {
-            FileUitl.bitmapToPath(jumpBitmap, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+            addBitmap(jumpBitmap);
         }
         jumpPoint = findJumpPoint(jumpBitmap);
         recognitionTime.spendTime("识别时间");
@@ -216,7 +237,7 @@ public class Jump {
             FileUitl.drawSmallPoint(bitmap1, rightPoint.x, rightPoint.y, Color.BLUE);
             FileUitl.drawSmallPoint(bitmap1, jumpPoint.x, jumpPoint.y, Color.GREEN);
             FileUitl.drawSmallPoint(bitmap1, precisePoint.x, precisePoint.y, Color.BLACK);
-            FileUitl.bitmapToPath(bitmap1, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+            addBitmap(bitmap1);
         }
 
 
@@ -245,6 +266,11 @@ public class Jump {
 
                 if (isWhite(bitmap.getPixel(jumpPoint.x, jumpPoint.y + x))) {
                     return new Point(jumpPoint.x, jumpPoint.y + x);
+                }
+
+
+                if (isWhite(bitmap.getPixel(jumpPoint.x + x, jumpPoint.y + x))) {
+                    return new Point(jumpPoint.x + x, jumpPoint.y + x);
                 }
 
             }
@@ -453,7 +479,7 @@ public class Jump {
                     //如果被干扰、🎵
                     if (isDisturb(bitmap, x, y)) {
                         x = getOutX(bitmap, x, y);
-                        LogUtils.e("检测到干扰，x："+x);
+                        LogUtils.e("检测到干扰，x：" + x);
                         continue;
                     }
                     //计算出去的坐标
@@ -474,8 +500,8 @@ public class Jump {
     private boolean isDisturb(Bitmap bitmap, int startX, int startY) {
         for (int y = startY; y < startY + 20; y = y + 1) {
             if (isLikeBg(bitmap, startX, y)
-                    || isLikeBg(bitmap, startX + (y-startY)/3, y)
-                    || isLikeBg(bitmap, startX -  (y-startY)/3, y)) {
+                    || isLikeBg(bitmap, startX + (y - startY) / 3, y)
+                    || isLikeBg(bitmap, startX - (y - startY) / 3, y)) {
                 return true;
             }
         }
@@ -582,12 +608,12 @@ public class Jump {
         int distence = (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2)
                 + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)));
         int time = 0;
-        double k = (distence * (-0.00020) + 1.48555);
-        if (k > 1.416) {
-            k = 1.416;
+        double k = (distence * (-0.00020) + 1.495);
+        if (k > 1.4165) {
+            k = 1.4165;
         }
         time = (int) (k * distence);
-        LogUtils.e("系数设置为：" + k);
+        LogUtils.e("系数设置为：" + k + "，距离为：" + distence + "，时间为：" + time);
         return time;
     }
 
@@ -639,4 +665,38 @@ public class Jump {
     public static void setStart_model(int start_model) {
         Jump.start_model = start_model;
     }
+
+    private void addBitmap(Bitmap bitmap) {
+        bitmapList.add(bitmap);
+    }
+
+
+    private void saveBitmap() {
+        if (bitmapList.size() >= 2) {
+            try {
+                FileUitl.bitmapToPath(bitmapList.get(0), MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+                bitmapList.remove(0);
+                FileUitl.bitmapToPath(bitmapList.get(0), MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+                bitmapList.remove(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void removeBitmap() {
+        if (bitmapList.size() >= 2) {
+            try {
+                bitmapList.get(0).recycle();
+                bitmapList.remove(0);
+                bitmapList.get(0).recycle();
+                bitmapList.remove(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
 }

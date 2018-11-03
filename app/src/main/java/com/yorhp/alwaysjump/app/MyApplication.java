@@ -16,15 +16,15 @@ import log.LogUtils;
 
 public class MyApplication extends Application {
 
-    public static String rootDir, savePointDir, saveChessDir;
+    public static String rootDir, savePointDir, saveChessDir, gradeDir;
 
-    public static boolean isDebug=true;
+    public static boolean isDebug = true;
 
     @Override
     public void onCreate() {
         super.onCreate();
         initDir();
-        LogUtils.init(isDebug,null);
+        LogUtils.init(isDebug, null);
     }
 
 
@@ -48,13 +48,12 @@ public class MyApplication extends Application {
             f6.mkdirs();
         }
 
+        gradeDir = rootDir + "grade/";
+        File f7 = new File(gradeDir);
+        if (!f7.exists()) {
+            f7.mkdirs();
+        }
 
-
-    }
-
-
-    //打印初始化
-    public static void log(String key, String value) {
 
     }
 

@@ -5,6 +5,8 @@ import android.os.Environment;
 
 import java.io.File;
 
+import log.LogUtils;
+
 /**
  * 作者：Tyhj on 2018/10/23 23:56
  * 邮箱：tyhj5@qq.com
@@ -14,7 +16,7 @@ import java.io.File;
 
 public class MyApplication extends Application {
 
-    public static String rootDir, savePointDir, saveChessDir, originTable;
+    public static String rootDir, savePointDir, saveChessDir;
 
     public static boolean isDebug=true;
 
@@ -22,6 +24,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         initDir();
+        LogUtils.init(isDebug,null);
     }
 
 
@@ -45,12 +48,6 @@ public class MyApplication extends Application {
             f6.mkdirs();
         }
 
-
-        originTable = rootDir + "originTable/";
-        File f9 = new File(originTable);
-        if (!f9.exists()) {
-            f9.mkdirs();
-        }
 
 
     }

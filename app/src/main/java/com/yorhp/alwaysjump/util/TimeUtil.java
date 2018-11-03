@@ -10,13 +10,13 @@ import log.LogUtils;
  */
 
 public class TimeUtil {
-    static Long currentTime = 0L;
+    Long currentTime = 0L;
 
-    public static void setTime() {
+    public void setTime() {
         currentTime = System.currentTimeMillis();
     }
 
-    public static void spendTime(String tag) {
+    public void spendTime(String tag) {
         LogUtils.e(tag + "，花费时间为：" + (System.currentTimeMillis() - currentTime));
         setTime();
     }

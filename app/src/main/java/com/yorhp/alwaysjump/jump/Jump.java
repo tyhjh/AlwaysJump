@@ -55,7 +55,7 @@ public class Jump {
     public static int MIN_DISTENCE = 80;
     public static int MAX_DISTENCE = 400;
 
-    public static int WHITETIME = 2100;
+    public static int WHITETIME = 2200;
 
     HsvColorLike hsvColorLike;
     LabColorLike labColorLike;
@@ -88,7 +88,7 @@ public class Jump {
                 justJump();
                 break;
             case Const.RUN_MODEL_TEST_PIC:
-                Bitmap bitmap = BitmapFactory.decodeFile(MyApplication.saveChessDir + "1.png");
+                Bitmap bitmap = BitmapFactory.decodeFile(MyApplication.savePointDir + "1.png");
                 if (bitmap == null)
                     return;
                 setBgColor(bitmap.getPixel(0, 0));
@@ -193,11 +193,43 @@ public class Jump {
         return precisePoint;
     }
 
+
+    //找周围有没有中心白点
+    private Point findCenterWhitePoint(Bitmap bitmap, Point jumpPoint) {
+        if (isWhite(bitmap.getPixel(jumpPoint.x, jumpPoint.y))) {
+            return jumpPoint;
+        } else {
+
+            for (int x = 0; x < 5; x++) {
+                if (isWhite(bitmap.getPixel(jumpPoint.x - x, jumpPoint.y))) {
+                    return new Point(jumpPoint.x - x, jumpPoint.y);
+                }
+
+                if (isWhite(bitmap.getPixel(jumpPoint.x + x, jumpPoint.y))) {
+                    return new Point(jumpPoint.x + x, jumpPoint.y);
+                }
+
+                if (isWhite(bitmap.getPixel(jumpPoint.x, jumpPoint.y - x))) {
+                    return new Point(jumpPoint.x, jumpPoint.y - x);
+                }
+
+                if (isWhite(bitmap.getPixel(jumpPoint.x, jumpPoint.y + x))) {
+                    return new Point(jumpPoint.x, jumpPoint.y + x);
+                }
+
+            }
+        }
+        return jumpPoint;
+    }
+
     //找特殊，中心白点
     private Point findCenterPoint(Bitmap bitmap, Point jumpPoint) {
-        if (!ColorUtil.colorLike(ColorUtil.whiteCenterColor, bitmap.getPixel(jumpPoint.x, jumpPoint.y), 3, labColorLike)) {
+
+        jumpPoint = findCenterWhitePoint(bitmap, jumpPoint);
+        if (!isWhite(bitmap.getPixel(jumpPoint.x, jumpPoint.y))) {
             return jumpPoint;
         }
+
 
         int top = jumpPoint.y, bottom = jumpPoint.y, left = jumpPoint.x, right = jumpPoint.x;
 
@@ -552,10 +584,15 @@ public class Jump {
         return ColorUtil.colorLike(bitmap.getPixel(x, y), bgColor, ABERRATION_BG_LAB2, labColorLike);
     }
 
+    private boolean isWhite(int color) {
+        return ColorUtil.colorLike(ColorUtil.whiteCenterColor, color, 3, labColorLike);
+    }
+
 
     private boolean isLikeChess(Bitmap bitmap, int x, int y) {
         return ColorUtil.colorLike(bitmap.getPixel(x, y), chessColor, ABERRATION_CHESS_LAB, labColorLike);
     }
+
 
     //判读是不是纯色
     private boolean isPure(Bitmap bitmap, int clr, int x, int y) {

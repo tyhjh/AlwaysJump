@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         btnProc = (TextView) findViewById(R.id.btn_proc);
         btn_test = (TextView) findViewById(R.id.btn_test);
         ScreenRecordUtil.getInstance().screenShot(MainActivity.this, null);
-        Jump.setStart_model(Const.RUN_MODEL_SAVE_PIC);
+        Jump.setStart_model(Const.RUN_MODEL_TEST_PIC);
         btnProc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

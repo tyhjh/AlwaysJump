@@ -63,7 +63,7 @@ public class Jump {
     public static int MIN_DISTENCE = 40;
     public static int MAX_DISTENCE = 400;
 
-    public static int WHITETIME = 2400;
+    public static int WHITETIME = 2500;
 
     HsvColorLike hsvColorLike;
     LabColorLike labColorLike;
@@ -237,6 +237,11 @@ public class Jump {
             FileUitl.drawSmallPoint(bitmap1, rightPoint.x, rightPoint.y, Color.BLUE);
             FileUitl.drawSmallPoint(bitmap1, jumpPoint.x, jumpPoint.y, Color.GREEN);
             FileUitl.drawSmallPoint(bitmap1, precisePoint.x, precisePoint.y, Color.BLACK);
+
+            if (start_model >= Const.RUN_MODEL_TEST_PIC) {
+                FileUitl.bitmapToPath(bitmap1, getSavePointPath());
+            }
+
             addBitmap(bitmap1);
         }
 
@@ -606,9 +611,9 @@ public class Jump {
      */
     private int getJumpTime(Point startPoint, Point jumpPoint) {
         int distence = (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2)
-                + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)));
+                + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)))+1;
         int time = 0;
-        double k = (distence * (-0.00020) + 1.495);
+        double k = (distence * (-0.00020) + 1.499);
         if (k > 1.4165) {
             k = 1.4165;
         }
@@ -674,14 +679,19 @@ public class Jump {
     private void saveBitmap() {
         if (bitmapList.size() >= 2) {
             try {
-                FileUitl.bitmapToPath(bitmapList.get(0), MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+                FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
                 bitmapList.remove(0);
-                FileUitl.bitmapToPath(bitmapList.get(0), MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+                FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
                 bitmapList.remove(0);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    private String getSavePointPath() {
+        return MyApplication.savePointDir + System.currentTimeMillis() + ".png";
     }
 
     private void removeBitmap() {

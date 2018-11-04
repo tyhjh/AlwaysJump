@@ -3,6 +3,8 @@ package com.yorhp.alwaysjump.app;
 import android.app.Application;
 import android.os.Environment;
 
+import com.yorhp.alwaysjump.util.CrashHandler;
+
 import java.io.File;
 
 import log.LogUtils;
@@ -16,7 +18,7 @@ import log.LogUtils;
 
 public class MyApplication extends Application {
 
-    public static String rootDir, savePointDir, saveChessDir, gradeDir;
+    public static String rootDir, savePointDir, saveChessDir, gradeDir,crashDir;
 
     public static boolean isDebug = true;
 
@@ -25,6 +27,7 @@ public class MyApplication extends Application {
         super.onCreate();
         initDir();
         LogUtils.init(isDebug, null);
+        CrashHandler.getInstance().init(this);
     }
 
 
@@ -54,6 +57,11 @@ public class MyApplication extends Application {
             f7.mkdirs();
         }
 
+        crashDir = rootDir + "crash/";
+        File f8 = new File(crashDir);
+        if (!f8.exists()) {
+            f8.mkdirs();
+        }
 
     }
 

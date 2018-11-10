@@ -1,5 +1,6 @@
 package com.yorhp.alwaysjump;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import com.yorhp.alwaysjump.util.AdbUtil;
 import com.yorhp.recordlibrary.ScreenRecordUtil;
 
 import permison.FloatWindowManager;
+import permison.PermissonUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
         btn_test = (TextView) findViewById(R.id.btn_test);
         ScreenRecordUtil.getInstance().screenShot(MainActivity.this, null);
         Jump.setStart_model(Const.RUN_MODEL_SAVE_PIC);
+
+        PermissonUtil.checkPermission(this, null, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
         btnProc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -43,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
         btn_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Jump.testColor();
+                throw new RuntimeException("测试错误");
+                //Jump.testColor();
             }
         });
     }

@@ -10,7 +10,9 @@ package com.yorhp.alwaysjump.app;
 public interface Const {
     public static int RUN_MODEL_QUICK_JUMP = 0;
     public static int RUN_MODEL_SAVE_PIC = 1;
+    //测试图片
     public static int RUN_MODEL_TEST_PIC= 2;
+    //跳一次
     public static int RUN_MODEL_SINGLE_JUMP = 3;
 
 

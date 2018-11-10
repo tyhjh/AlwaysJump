@@ -257,6 +257,11 @@ public class Jump {
         } else {
 
             for (int x = 0; x < 5; x++) {
+
+                if (jumpPoint.x - x < 0 || jumpPoint.x + x >= bitmap.getWidth() || jumpPoint.y - x < 0 || jumpPoint.y + x >= bitmap.getHeight()) {
+                    return jumpPoint;
+                }
+
                 if (isWhite(bitmap.getPixel(jumpPoint.x - x, jumpPoint.y))) {
                     return new Point(jumpPoint.x - x, jumpPoint.y);
                 }
@@ -611,9 +616,9 @@ public class Jump {
      */
     private int getJumpTime(Point startPoint, Point jumpPoint) {
         int distence = (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2)
-                + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)))+1;
+                + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)));
         int time = 0;
-        double k = (distence * (-0.00020) + 1.499);
+        double k = (distence * (-0.00020) + 1.49);
         if (k > 1.4165) {
             k = 1.4165;
         }
@@ -675,9 +680,8 @@ public class Jump {
         bitmapList.add(bitmap);
     }
 
-
     private void saveBitmap() {
-        if (bitmapList.size() >= 2) {
+        if (bitmapList.size() >= 4) {
             try {
                 FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
                 bitmapList.remove(0);

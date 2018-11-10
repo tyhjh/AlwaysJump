@@ -1,9 +1,14 @@
 package com.yorhp.alwaysjump.app;
 
 import android.app.Application;
+import android.graphics.Bitmap;
 import android.os.Environment;
 
-import com.yorhp.alwaysjump.util.CrashHandler;
+import com.yorhp.alwaysjump.util.FileUitl;
+import com.yorhp.crashlibrary.CrashHander;
+import com.yorhp.crashlibrary.saveErro.ISaveErro;
+import com.yorhp.crashlibrary.saveErro.SaveErroToSDCard;
+import com.yorhp.recordlibrary.ScreenRecordUtil;
 
 import java.io.File;
 
@@ -18,7 +23,7 @@ import log.LogUtils;
 
 public class MyApplication extends Application {
 
-    public static String rootDir, savePointDir, saveChessDir, gradeDir,crashDir;
+    public static String rootDir, savePointDir, saveChessDir, gradeDir, crashDir;
 
     public static boolean isDebug = true;
 
@@ -27,7 +32,14 @@ public class MyApplication extends Application {
         super.onCreate();
         initDir();
         LogUtils.init(isDebug, null);
-        CrashHandler.getInstance().init(this);
+        CrashHander.getInstance().init(this, new ISaveErro() {
+            @Override
+            public void saveErroMsg(Throwable throwable) {
+                new SaveErroToSDCard(crashDir).saveErroMsg(throwable);
+                Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
+                FileUitl.bitmapToPath(bitmap, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+            }
+        });
     }
 
 

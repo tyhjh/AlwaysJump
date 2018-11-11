@@ -681,15 +681,17 @@ public class Jump {
     }
 
     private void saveBitmap() {
-        if (bitmapList.size() >= 4) {
-            try {
-                FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
-                bitmapList.remove(0);
-                FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
-                bitmapList.remove(0);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
+            bitmapList.remove(0);
+            FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
+            bitmapList.remove(0);
+            FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
+            bitmapList.remove(0);
+            FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
+            bitmapList.remove(0);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -699,7 +701,7 @@ public class Jump {
     }
 
     private void removeBitmap() {
-        if (bitmapList.size() >= 2) {
+        if (bitmapList.size() >= 4) {
             try {
                 bitmapList.get(0).recycle();
                 bitmapList.remove(0);

@@ -61,7 +61,7 @@ public class Jump {
     public static int bitmapHeight = 1920;
 
     public static int MIN_DISTENCE = 40;
-    public static int MAX_DISTENCE = 400;
+    public static int MAX_DISTENCE = 250;
 
     public static int WHITETIME = 2500;
 
@@ -209,18 +209,12 @@ public class Jump {
         } else if (leathLeft / leathRight > 1.3 || leathRight / leathLeft > 1.3) {
             if ((leathRight < MIN_DISTENCE || leathRight > MAX_DISTENCE) && (leathLeft < MIN_DISTENCE || leathLeft > MAX_DISTENCE)) {
                 pointY = topPoint.y + 100;
-            } else if (leathRight > leathLeft && leathRight > MIN_DISTENCE && leathRight < MAX_DISTENCE) {
+            } else if (leathRight < leathLeft && leathRight > MIN_DISTENCE && leathRight < MAX_DISTENCE) {
                 pointY = rightPoint.y;
-            } else if (leathLeft > leathRight && leathLeft > MIN_DISTENCE && leathLeft < MAX_DISTENCE) {
+            } else if (leathLeft < leathRight && leathLeft > MIN_DISTENCE && leathLeft < MAX_DISTENCE) {
                 pointY = leftPoint.y;
-            } else if (leathRight < MIN_DISTENCE && leathLeft > MIN_DISTENCE) {
-                pointY = leftPoint.y;
-            } else if (leathRight > MIN_DISTENCE && leathLeft < MIN_DISTENCE) {
-                pointY = rightPoint.y;
-            } else if (leathRight > MAX_DISTENCE && leathLeft < MAX_DISTENCE) {
-                pointY = leftPoint.y;
-            } else if (leathLeft > MAX_DISTENCE && leathRight < MAX_DISTENCE) {
-                pointY = rightPoint.y;
+            } else {
+                pointY = topPoint.y + 100;
             }
             jumpPoint = new Point(topPoint.x, pointY);
         } else {
@@ -365,15 +359,27 @@ public class Jump {
                         LogUtils.e("getLeftPoint：" + "和背景一样");
                         return new Point(x, y);
                     } else {//获取再次到纯色的点
-                        LogUtils.e("getLeftPoint：获取再次到纯色的点");
+                        LogUtils.e("getLeftPoint：需要获取再次到纯色的点");
                         for (int i = x; i > 0; i = i - 3) {
                             int j = (int) (y + (x - i) * k);
                             if (j >= bitmap.getHeight()) {
                                 LogUtils.e("getLeftPoint：" + ">= bitmap.getHeight()");
                                 return new Point(x, y);
                             }
+
+                            if (isLikeBg(bitmap, i, j)) {
+                                LogUtils.e("getLeftPoint：再次到背景");
+                                return new Point(x, y);
+                            }
+
+
                             if (ColorUtil.colorLike(bitmap.getPixel(i, j), color, ABERRATION_BG_LAB, labColorLike)) {
-                                x = i;
+                                if (x - i < MAX_DISTENCE) {
+                                    x = i;
+                                } else {
+                                    return new Point(x, y);
+                                }
+
                                 LogUtils.e("getLeftPoint：找到纯色的点：" + x);
                                 break;
                             }
@@ -427,8 +433,19 @@ public class Jump {
                                 LogUtils.e("getRightPoint：" + ">= bitmap.getHeight()");
                                 return new Point(x, y);
                             }
+
+                            if (isLikeBg(bitmap, i, j)) {
+                                LogUtils.e("getLeftPoint：再次到背景");
+                                return new Point(x, y);
+                            }
+
+
                             if (ColorUtil.colorLike(bitmap.getPixel(i, j), color, ABERRATION_BG_LAB, labColorLike)) {
-                                x = i;
+                                if (x - i < MAX_DISTENCE) {
+                                    x = i;
+                                } else {
+                                    return new Point(x, y);
+                                }
                                 LogUtils.e("getRightPoint：找到纯色的点：" + x);
                                 break;
                             }

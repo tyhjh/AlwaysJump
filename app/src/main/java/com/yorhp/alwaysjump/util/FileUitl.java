@@ -2,7 +2,6 @@ package com.yorhp.alwaysjump.util;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
@@ -45,7 +44,7 @@ public class FileUitl {
     }
 
     public static void drawSmallPoint(Bitmap bitmap, int x, int y, int color) {
-        drawPoint(bitmap, x, y, 5, color);
+        drawPoint(bitmap, x, y, 2, color);
     }
 
 

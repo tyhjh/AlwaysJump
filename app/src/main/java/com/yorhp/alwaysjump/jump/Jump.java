@@ -60,7 +60,7 @@ public class Jump {
     public static int bitmapWidth = 1080;
     public static int bitmapHeight = 1920;
 
-    public static int MIN_DISTENCE = 40;
+    public static int MIN_DISTENCE = 50;
     public static int MAX_DISTENCE = 250;
 
     public static int WHITETIME = 2500;
@@ -140,7 +140,7 @@ public class Jump {
         Rect rectChess = new Rect(startPoint.x - 40, (int) (startPoint.y + bitmapHeight * chessStart - 190), startPoint.x + 40, (int) (startPoint.y + bitmapHeight * chessStart + 30));
         FileUitl.drawRect(bitmap, rectChess, bgColor);
         FileUitl.drawPoint(chessBitmap, startPoint.x, startPoint.y, 4, Color.RED);
-        FileUitl.bitmapToPath(chessBitmap, MyApplication.saveChessDir + System.currentTimeMillis() + ".png");
+        //FileUitl.bitmapToPath(chessBitmap, MyApplication.saveChessDir + System.currentTimeMillis() + ".png");
         Bitmap jumpBitmap = FileUitl.cropBitmapY(bitmap, jumpStart, jumpHeight);
         if (start_model != Const.RUN_MODEL_QUICK_JUMP) {
             addBitmap(jumpBitmap);
@@ -207,14 +207,19 @@ public class Jump {
             pointY = leftPoint.y;
             jumpPoint = new Point(topPoint.x, pointY);
         } else if (leathLeft / leathRight > 1.3 || leathRight / leathLeft > 1.3) {
-            if ((leathRight < MIN_DISTENCE || leathRight > MAX_DISTENCE) && (leathLeft < MIN_DISTENCE || leathLeft > MAX_DISTENCE)) {
-                pointY = topPoint.y + 100;
+
+            if ((leathRight > MIN_DISTENCE && leathRight < MAX_DISTENCE && leathRight > leathLeft)) {
+                pointY = rightPoint.y;
+            } else if ((leathLeft > MIN_DISTENCE && leathLeft < MAX_DISTENCE && leathLeft > leathRight)) {
+                pointY = leftPoint.y;
+            } else if ((leathRight < MIN_DISTENCE || leathRight > MAX_DISTENCE) && (leathLeft < MIN_DISTENCE || leathLeft > MAX_DISTENCE)) {
+                pointY = topPoint.y + MIN_DISTENCE;
             } else if (leathRight < leathLeft && leathRight > MIN_DISTENCE && leathRight < MAX_DISTENCE) {
                 pointY = rightPoint.y;
             } else if (leathLeft < leathRight && leathLeft > MIN_DISTENCE && leathLeft < MAX_DISTENCE) {
                 pointY = leftPoint.y;
             } else {
-                pointY = topPoint.y + 100;
+                pointY = topPoint.y + MIN_DISTENCE;
             }
             jumpPoint = new Point(topPoint.x, pointY);
         } else {
@@ -232,7 +237,7 @@ public class Jump {
             FileUitl.drawSmallPoint(bitmap1, jumpPoint.x, jumpPoint.y, Color.GREEN);
             FileUitl.drawSmallPoint(bitmap1, precisePoint.x, precisePoint.y, Color.BLACK);
 
-            if (start_model >= Const.RUN_MODEL_TEST_PIC - 1) {
+            if (start_model >= Const.RUN_MODEL_TEST_PIC ) {
                 FileUitl.bitmapToPath(bitmap1, getSavePointPath());
             }
 

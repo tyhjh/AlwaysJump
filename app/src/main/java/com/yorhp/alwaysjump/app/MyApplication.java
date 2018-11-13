@@ -1,15 +1,10 @@
 package com.yorhp.alwaysjump.app;
 
 import android.app.Application;
-import android.graphics.Bitmap;
 import android.os.Environment;
 
-import com.yorhp.alwaysjump.jump.Jump;
-import com.yorhp.alwaysjump.util.FileUitl;
 import com.yorhp.crashlibrary.CrashHander;
 import com.yorhp.crashlibrary.saveErro.ISaveErro;
-import com.yorhp.crashlibrary.saveErro.SaveErroToSDCard;
-import com.yorhp.recordlibrary.ScreenRecordUtil;
 
 import java.io.File;
 
@@ -36,12 +31,6 @@ public class MyApplication extends Application {
         CrashHander.getInstance().init(this, new ISaveErro() {
             @Override
             public void saveErroMsg(Throwable throwable) {
-                new SaveErroToSDCard(crashDir).saveErroMsg(throwable);
-                Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
-                FileUitl.bitmapToPath(bitmap, MyApplication.savePointDir + "crash" + System.currentTimeMillis() + ".png");
-                for (Bitmap bitmap1 : Jump.bitmapList) {
-                    FileUitl.bitmapToPath(bitmap1, MyApplication.savePointDir + "crash_urgent_save" + System.currentTimeMillis() + ".png");
-                }
 
             }
         });

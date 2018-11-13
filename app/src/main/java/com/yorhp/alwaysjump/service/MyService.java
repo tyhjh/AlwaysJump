@@ -38,37 +38,33 @@ public class MyService extends Service {
         showNotification(getApplicationContext(), 0, "AlwaysJump", "程序正在运行中");
     }
 
-    WindowManager.LayoutParams params3;
+    WindowManager.LayoutParams params;
     WindowManager windowManager;
-    ImageView btnView3;
+    ImageView btnView;
     public static final int FLAG_LAYOUT_INSET_DECOR = 0x00000200;
 
     private void createWindowView() {
-        btnView3 = new ImageView(getApplicationContext());
-        btnView3.setImageResource(R.drawable.ic_star);
-
+        btnView = new ImageView(getApplicationContext());
+        btnView.setImageResource(R.drawable.ic_star);
         windowManager = (WindowManager) getApplicationContext()
                 .getSystemService(Context.WINDOW_SERVICE);
-
-        params3 = new WindowManager.LayoutParams();
-
+        params = new WindowManager.LayoutParams();
         // 设置Window Type
-        params3.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
         // 设置悬浮框不可触摸
-        params3.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+        params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                 | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | FLAG_LAYOUT_INSET_DECOR;
         // 悬浮窗不可触摸，不接受任何事件,同时不影响后面的事件响应
-        params3.format = PixelFormat.RGBA_8888;
-
+        params.format = PixelFormat.RGBA_8888;
         // 设置悬浮框的宽高
-        params3.width = 200;
-        params3.height = 200;
-        params3.gravity = Gravity.TOP;
-        params3.x = 300;
-        params3.y = 200;
+        params.width = 200;
+        params.height = 200;
+        params.gravity = Gravity.TOP;
+        params.x = 300;
+        params.y = 200;
 
 
-        btnView3.setOnTouchListener(new View.OnTouchListener() {
+        btnView.setOnTouchListener(new View.OnTouchListener() {
 
             //保存悬浮框最后位置的变量
             int lastX, lastY;
@@ -81,23 +77,23 @@ public class MyService extends Service {
                     case MotionEvent.ACTION_DOWN:
                         lastX = (int) event.getRawX();
                         lastY = (int) event.getRawY();
-                        paramX = params3.x;
-                        paramY = params3.y;
+                        paramX = params.x;
+                        paramY = params.y;
                         break;
                     case MotionEvent.ACTION_MOVE:
                         int dx = (int) event.getRawX() - lastX;
                         int dy = (int) event.getRawY() - lastY;
-                        params3.x = paramX + dx;
-                        params3.y = paramY + dy;
+                        params.x = paramX + dx;
+                        params.y = paramY + dy;
                         // 更新悬浮窗位置
-                        windowManager.updateViewLayout(btnView3, params3);
+                        windowManager.updateViewLayout(btnView, params);
                         break;
                 }
                 return false;
             }
         });
 
-        btnView3.setOnClickListener(new View.OnClickListener() {
+        btnView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //btnView3.setVisibility(View.INVISIBLE);
@@ -125,7 +121,7 @@ public class MyService extends Service {
                 }
             }
         });
-        windowManager.addView(btnView3, params3);
+        windowManager.addView(btnView, params);
     }
 
     Jump jump = new Jump();

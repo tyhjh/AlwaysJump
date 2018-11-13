@@ -45,7 +45,7 @@ public class FileUitl {
     }
 
     public static void drawSmallPoint(Bitmap bitmap, int x, int y, int color) {
-        drawPoint(bitmap, x, y, 1, color);
+        drawPoint(bitmap, x, y, 5, color);
     }
 
 

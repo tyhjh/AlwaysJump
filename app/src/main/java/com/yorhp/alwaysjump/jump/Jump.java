@@ -48,7 +48,7 @@ public class Jump {
     static Point overBluePoint = new Point(200, 1580);
     static Point overGreenPoint = new Point(520, 1565);
 
-    List<Bitmap> bitmapList = new ArrayList<>();
+    public static List<Bitmap> bitmapList = new ArrayList<>();
 
     public static int start_model = Const.RUN_MODEL_QUICK_JUMP;
 
@@ -139,8 +139,8 @@ public class Jump {
         //清除棋子像素，去除干扰
         Rect rectChess = new Rect(startPoint.x - 40, (int) (startPoint.y + bitmapHeight * chessStart - 190), startPoint.x + 40, (int) (startPoint.y + bitmapHeight * chessStart + 30));
         FileUitl.drawRect(bitmap, rectChess, bgColor);
-        /*FileUitl.drawPoint(chessBitmap, startPoint.x, startPoint.y);
-        FileUitl.bitmapToPath(chessBitmap, MyApplication.saveChessDir + System.currentTimeMillis() + ".png");*/
+        FileUitl.drawPoint(chessBitmap, startPoint.x, startPoint.y, 4, Color.RED);
+        FileUitl.bitmapToPath(chessBitmap, MyApplication.saveChessDir + System.currentTimeMillis() + ".png");
         Bitmap jumpBitmap = FileUitl.cropBitmapY(bitmap, jumpStart, jumpHeight);
         if (start_model != Const.RUN_MODEL_QUICK_JUMP) {
             addBitmap(jumpBitmap);
@@ -232,7 +232,7 @@ public class Jump {
             FileUitl.drawSmallPoint(bitmap1, jumpPoint.x, jumpPoint.y, Color.GREEN);
             FileUitl.drawSmallPoint(bitmap1, precisePoint.x, precisePoint.y, Color.BLACK);
 
-            if (start_model >= Const.RUN_MODEL_TEST_PIC) {
+            if (start_model >= Const.RUN_MODEL_TEST_PIC - 1) {
                 FileUitl.bitmapToPath(bitmap1, getSavePointPath());
             }
 
@@ -586,14 +586,11 @@ public class Jump {
         //粗略找到左下角进入棋子的点
         for (int y = height; y > ignorePoint; y = y - ignorePoint) {
             for (int x = 0; x < width - ignorePoint - 2; x = x + ignorePoint) {
-
                 if (isLikeChess(bitmap, x, y)) {//开始密集查找
                     firstPoint = new Point(x, y);
                     x = width;
                     y = 0;
-
                 }
-
             }
         }
 
@@ -635,7 +632,7 @@ public class Jump {
         int distence = (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2)
                 + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)));
         int time = 0;
-        double k = (distence * (-0.00020) + 1.49);
+        double k = (distence * (-0.00020) + 1.495);
         if (k > 1.4165) {
             k = 1.4165;
         }

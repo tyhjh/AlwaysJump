@@ -14,15 +14,18 @@ public class AdbUtil {
 
     static Process process = null;
     static DataOutputStream os = null;
-    static ProcessBuilder processBuilder=new ProcessBuilder();
+    static ProcessBuilder processBuilder = new ProcessBuilder();
 
+    /**
+     * @param cmd  需要执行的adb命令
+     */
     public static void execShellCmd(String cmd) {
         try {
             if (process == null) {
                 process = Runtime.getRuntime().exec("su");
                 os = new DataOutputStream(process.getOutputStream());
             }
-            os.writeBytes(cmd+"\n");
+            os.writeBytes(cmd + "\n");
             os.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -30,7 +33,7 @@ public class AdbUtil {
     }
 
 
-    public static void execShellCmd2(String[] cmd){
+    public static void execShellCmd2(String[] cmd) {
 
         try {
             processBuilder.command(cmd);
@@ -42,7 +45,7 @@ public class AdbUtil {
 
 
     public static void adbClick(int x, int y) {
-        String msg = "input swipe " + x + " " + y+" "+x+1+" "+y+1+" "+10;
+        String msg = "input swipe " + x + " " + y + " " + x + 1 + " " + y + 1 + " " + 10;
         /*String[] order = {
                 "input",
                 "tap",

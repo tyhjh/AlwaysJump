@@ -4,6 +4,7 @@ import android.app.Application;
 import android.graphics.Bitmap;
 import android.os.Environment;
 
+import com.yorhp.alwaysjump.jump.Jump;
 import com.yorhp.alwaysjump.util.FileUitl;
 import com.yorhp.crashlibrary.CrashHander;
 import com.yorhp.crashlibrary.saveErro.ISaveErro;
@@ -37,7 +38,11 @@ public class MyApplication extends Application {
             public void saveErroMsg(Throwable throwable) {
                 new SaveErroToSDCard(crashDir).saveErroMsg(throwable);
                 Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
-                FileUitl.bitmapToPath(bitmap, MyApplication.savePointDir + System.currentTimeMillis() + ".png");
+                FileUitl.bitmapToPath(bitmap, MyApplication.savePointDir + "crash" + System.currentTimeMillis() + ".png");
+                for (Bitmap bitmap1 : Jump.bitmapList) {
+                    FileUitl.bitmapToPath(bitmap1, MyApplication.savePointDir + "crash_urgent_save" + System.currentTimeMillis() + ".png");
+                }
+
             }
         });
     }

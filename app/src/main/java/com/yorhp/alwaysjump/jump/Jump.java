@@ -18,6 +18,8 @@ import com.yorhp.alwaysjump.util.color.LabColorLike;
 import com.yorhp.alwaysjump.util.color.RgbColorLike;
 import com.yorhp.recordlibrary.ScreenRecordUtil;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +42,7 @@ import static com.yorhp.alwaysjump.util.color.RgbColorLike.rgbAberration;
 
 public class Jump {
 
+    Long startTime = 0L;
     //斜率
     static double k = 0.5773;
     //背景颜色
@@ -85,6 +88,7 @@ public class Jump {
     public static boolean start = false;
 
     public void start() {
+        startTime = System.currentTimeMillis();
         switch (start_model) {
             case Const.RUN_MODEL_QUICK_JUMP:
             case Const.RUN_MODEL_SAVE_PIC:
@@ -119,10 +123,11 @@ public class Jump {
 
         if (ColorUtil.colorLike(bitmap.getPixel(overBluePoint.x, overBluePoint.y), ColorUtil.buleOverColor, 10, labColorLike)
                 && ColorUtil.colorLike(bitmap.getPixel(overGreenPoint.x, overGreenPoint.y), ColorUtil.greenOverColor, 10, labColorLike)) {
-            FileUitl.bitmapToPath(bitmap, MyApplication.gradeDir + System.currentTimeMillis() + ".png");
+            saveGrade(bitmap);
             AdbUtil.execShellCmd(ADB_COMMEND + 10);
             SystemClock.sleep(WHITETIME);
             saveBitmap();
+            startTime = System.currentTimeMillis();
             return;
         } else {
             removeBitmap();
@@ -152,6 +157,13 @@ public class Jump {
         AdbUtil.execShellCmd(ADB_COMMEND + time);
         SystemClock.sleep(time + WHITETIME);
         allTime.spendTime("跳一次时间");
+    }
+
+    private void saveGrade(Bitmap bitmap) {
+        String startTim = new SimpleDateFormat("MM月dd日HH:mm:ss").format(startTime);
+        String endTim = new SimpleDateFormat("MM月dd日HH:mm:ss").format(System.currentTimeMillis());
+        String spendTime = new DecimalFormat("0.00").format(((float) (System.currentTimeMillis() - startTime) / (1000 * 3600))) + "小时";
+        FileUitl.bitmapToPath(bitmap, MyApplication.gradeDir + startTim + "__" + endTim + "__" + spendTime + ".png");
     }
 
 
@@ -237,7 +249,7 @@ public class Jump {
             FileUitl.drawSmallPoint(bitmap1, jumpPoint.x, jumpPoint.y, Color.GREEN);
             FileUitl.drawSmallPoint(bitmap1, precisePoint.x, precisePoint.y, Color.BLACK);
 
-            if (start_model >= Const.RUN_MODEL_TEST_PIC ) {
+            if (start_model >= Const.RUN_MODEL_TEST_PIC) {
                 FileUitl.bitmapToPath(bitmap1, getSavePointPath());
             }
 

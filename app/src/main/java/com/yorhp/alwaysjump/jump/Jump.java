@@ -42,6 +42,8 @@ import static com.yorhp.alwaysjump.util.color.RgbColorLike.rgbAberration;
 
 public class Jump {
 
+    public static int SAVE_BITMAP_COUNT=8;
+
     Long startTime = 0L;
     //斜率
     static double k = 0.5773;
@@ -523,7 +525,7 @@ public class Jump {
                     //如果被干扰、🎵
                     if (isDisturb(bitmap, x, y)) {
                         x = getOutX(bitmap, x, y);
-                        LogUtils.e("检测到干扰，x：" + x+"，y："+y);
+                        LogUtils.e("检测到干扰，x：" + x + "，y：" + y);
                         continue;
                     }
                     //计算出去的坐标
@@ -732,7 +734,7 @@ public class Jump {
     }
 
     private void removeBitmap() {
-        if (bitmapList.size() >= 4) {
+        if (bitmapList.size() >=SAVE_BITMAP_COUNT) {
             try {
                 bitmapList.get(0).recycle();
                 bitmapList.remove(0);

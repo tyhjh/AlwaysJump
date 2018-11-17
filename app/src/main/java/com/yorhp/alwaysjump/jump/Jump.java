@@ -523,7 +523,7 @@ public class Jump {
                     //如果被干扰、🎵
                     if (isDisturb(bitmap, x, y)) {
                         x = getOutX(bitmap, x, y);
-                        LogUtils.e("检测到干扰，x：" + x);
+                        LogUtils.e("检测到干扰，x：" + x+"，y："+y);
                         continue;
                     }
                     //计算出去的坐标

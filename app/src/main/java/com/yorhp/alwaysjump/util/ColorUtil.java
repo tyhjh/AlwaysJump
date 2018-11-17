@@ -45,7 +45,7 @@ public class ColorUtil {
     public static int ABERRATION_BG_LAB = 10;
 
 
-    public static int ABERRATION_BG_LAB2 = 15;
+    public static int ABERRATION_BG_LAB2 = 10;
 
     //杂色板块的色差
     public static int ABERRATION_MOTLEY_HSV = 12;

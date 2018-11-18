@@ -42,7 +42,7 @@ import static com.yorhp.alwaysjump.util.color.RgbColorLike.rgbAberration;
 
 public class Jump {
 
-    public static int SAVE_BITMAP_COUNT=8;
+    public static int SAVE_BITMAP_COUNT = 8;
 
     Long startTime = 0L;
     //斜率
@@ -58,6 +58,9 @@ public class Jump {
     public static int start_model = Const.RUN_MODEL_QUICK_JUMP;
 
     private static String ADB_COMMEND = "input touchscreen swipe 660 1600 660 1600 ";
+
+    private static String ADB_COMMEND_NETWORK_ERRO = "input touchscreen swipe 600 1120 600 1120 ";
+
     public static double chessHeight = 0.25;//截图比例
     public static double chessStart = 0.4;//开始截图的位置
     public static double jumpHeight = 0.30;
@@ -103,8 +106,9 @@ public class Jump {
                 break;
             case Const.RUN_MODEL_TEST_PIC:
                 Bitmap bitmap = BitmapFactory.decodeFile(MyApplication.savePointDir + "1.png");
-                if (bitmap == null)
+                if (bitmap == null) {
                     return;
+                }
                 setBgColor(bitmap.getPixel(0, 0));
                 findJumpPoint(bitmap);
                 break;
@@ -130,6 +134,13 @@ public class Jump {
             SystemClock.sleep(WHITETIME);
             saveBitmap();
             startTime = System.currentTimeMillis();
+            return;
+        } else if (ColorUtil.colorLike(bitmap.getPixel(205, 795), ColorUtil.blackColor, 10, labColorLike)
+                && ColorUtil.colorLike(bitmap.getPixel(217, 973), ColorUtil.grayColor, 10, labColorLike)
+                && ColorUtil.colorLike(bitmap.getPixel(792, 1110), ColorUtil.buleColor, 10, labColorLike)) {
+            AdbUtil.execShellCmd(ADB_COMMEND_NETWORK_ERRO + 10);
+            SystemClock.sleep(WHITETIME);
+            saveBitmap();
             return;
         } else {
             removeBitmap();
@@ -715,14 +726,10 @@ public class Jump {
 
     private void saveBitmap() {
         try {
-            FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
-            bitmapList.remove(0);
-            FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
-            bitmapList.remove(0);
-            FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
-            bitmapList.remove(0);
-            FileUitl.bitmapToPath(bitmapList.get(0), getSavePointPath());
-            bitmapList.remove(0);
+            for (Bitmap bitmap : bitmapList) {
+                FileUitl.bitmapToPath(bitmap, getSavePointPath());
+            }
+            bitmapList.clear();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -734,7 +741,7 @@ public class Jump {
     }
 
     private void removeBitmap() {
-        if (bitmapList.size() >=SAVE_BITMAP_COUNT) {
+        if (bitmapList.size() >= SAVE_BITMAP_COUNT) {
             try {
                 bitmapList.get(0).recycle();
                 bitmapList.remove(0);

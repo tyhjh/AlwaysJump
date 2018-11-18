@@ -16,6 +16,7 @@ import com.yorhp.alwaysjump.util.color.RgbColorLike;
 
 public class ColorUtil {
 
+
     HsvColorLike hsvColorLike = new HsvColorLike();
     LabColorLike labColorLike = new LabColorLike();
     RgbColorLike rgbColorLike = new RgbColorLike();
@@ -33,6 +34,11 @@ public class ColorUtil {
     public static int buleOverColor=Color.parseColor("#0198ff");
 
     public static int greenOverColor=Color.parseColor("#00c776");
+
+    public static int blackColor=Color.parseColor("#333333");
+    public static int grayColor=Color.parseColor("#757575");
+    public static int buleColor=Color.parseColor("#3cc81f");
+
 
 
 

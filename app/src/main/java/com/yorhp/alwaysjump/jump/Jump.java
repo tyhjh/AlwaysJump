@@ -9,7 +9,6 @@ import android.os.SystemClock;
 
 import com.yorhp.alwaysjump.app.Const;
 import com.yorhp.alwaysjump.app.MyApplication;
-import com.yorhp.alwaysjump.util.AdbUtil;
 import com.yorhp.alwaysjump.util.ColorUtil;
 import com.yorhp.alwaysjump.util.FileUitl;
 import com.yorhp.alwaysjump.util.TimeUtil;
@@ -42,6 +41,7 @@ import static com.yorhp.alwaysjump.util.color.RgbColorLike.rgbAberration;
 
 public class Jump {
 
+
     public static int SAVE_BITMAP_COUNT = 8;
 
     Long startTime = 0L;
@@ -50,16 +50,22 @@ public class Jump {
     //背景颜色
     public int bgColor;
 
-    static Point overBluePoint = new Point(200, 1580);
-    static Point overGreenPoint = new Point(520, 1565);
+    static Point overBluePoint = new Point(200, 1734);
+    static Point overGreenPoint = new Point(523, 1715);
 
     public static List<Bitmap> bitmapList = new ArrayList<>();
 
     public static int start_model = Const.RUN_MODEL_QUICK_JUMP;
 
-    private static String ADB_COMMEND = "input touchscreen swipe 660 1600 660 1600 ";
+    int jumpX = 660;
+    int jumpY = 1600;
 
-    private static String ADB_COMMEND_NETWORK_ERRO = "input touchscreen swipe 600 1120 600 1120 ";
+    int jumpErroX = 523;
+    int jumpErroY = 1715;
+
+
+
+
 
     public static double chessHeight = 0.25;//截图比例
     public static double chessStart = 0.4;//开始截图的位置
@@ -68,10 +74,10 @@ public class Jump {
     public static int bitmapWidth = 1080;
     public static int bitmapHeight = 1920;
 
-    public static int MIN_DISTENCE = 50;
-    public static int MAX_DISTENCE = 250;
+    public static int MIN_DISTENCE = (int) (50*1);
+    public static int MAX_DISTENCE = (int) (250*1);
 
-    public static int WHITETIME = 2500;
+    public static int WHITETIME = 1400;
 
     HsvColorLike hsvColorLike;
     LabColorLike labColorLike;
@@ -127,18 +133,21 @@ public class Jump {
 
         Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
 
+        bitmapWidth=bitmap.getWidth();
+        bitmapHeight=bitmap.getHeight();
+
         if (ColorUtil.colorLike(bitmap.getPixel(overBluePoint.x, overBluePoint.y), ColorUtil.buleOverColor, 10, labColorLike)
                 && ColorUtil.colorLike(bitmap.getPixel(overGreenPoint.x, overGreenPoint.y), ColorUtil.greenOverColor, 10, labColorLike)) {
             saveGrade(bitmap);
-            AdbUtil.execShellCmd(ADB_COMMEND + 10);
+            onJump.jumpStart(jumpX, jumpY, 10);
             SystemClock.sleep(WHITETIME);
             saveBitmap();
             startTime = System.currentTimeMillis();
             return;
-        } else if (ColorUtil.colorLike(bitmap.getPixel(205, 795), ColorUtil.blackColor, 10, labColorLike)
+        } else if (ColorUtil.colorLike(bitmap.getPixel(200, 1734), ColorUtil.blackColor, 10, labColorLike)
                 && ColorUtil.colorLike(bitmap.getPixel(217, 973), ColorUtil.grayColor, 10, labColorLike)
                 && ColorUtil.colorLike(bitmap.getPixel(792, 1110), ColorUtil.buleColor, 10, labColorLike)) {
-            AdbUtil.execShellCmd(ADB_COMMEND_NETWORK_ERRO + 10);
+            onJump.jumpStart(jumpErroX, jumpErroY, 10);
             SystemClock.sleep(WHITETIME);
             saveBitmap();
             return;
@@ -166,8 +175,16 @@ public class Jump {
         jumpPoint = findJumpPoint(jumpBitmap);
         recognitionTime.spendTime("识别时间");
 
-        int time = getJumpTime(startPoint, jumpPoint);
-        AdbUtil.execShellCmd(ADB_COMMEND + time);
+        final int time = getJumpTime(startPoint, jumpPoint);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                onJump.jumpStart(jumpX, jumpY, time);
+            }
+        }).start();
+
+
         SystemClock.sleep(time + WHITETIME);
         allTime.spendTime("跳一次时间");
     }
@@ -752,6 +769,17 @@ public class Jump {
             }
 
         }
+    }
+
+
+    OnJump onJump;
+
+    public OnJump getOnJump() {
+        return onJump;
+    }
+
+    public void setOnJump(OnJump onJump) {
+        this.onJump = onJump;
     }
 
 

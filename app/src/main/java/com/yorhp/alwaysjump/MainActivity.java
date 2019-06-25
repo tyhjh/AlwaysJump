@@ -3,6 +3,7 @@ package com.yorhp.alwaysjump;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
@@ -11,7 +12,7 @@ import android.widget.TextView;
 import com.yorhp.alwaysjump.app.Const;
 import com.yorhp.alwaysjump.jump.Jump;
 import com.yorhp.alwaysjump.service.MyService;
-import com.yorhp.alwaysjump.util.AdbUtil;
+import com.yorhp.alwaysjump.util.AccessbilityUtil;
 import com.yorhp.recordlibrary.ScreenRecordUtil;
 
 import permison.FloatWindowManager;
@@ -27,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
-        final Intent intent = new Intent(this, MyService.class);
         btnProc = (TextView) findViewById(R.id.btn_proc);
         btn_test = (TextView) findViewById(R.id.btn_test);
         ScreenRecordUtil.getInstance().screenShot(MainActivity.this, null);
@@ -35,13 +35,16 @@ public class MainActivity extends AppCompatActivity {
 
         PermissonUtil.checkPermission(this, null, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
+
         btnProc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (FloatWindowManager.getInstance().applyOrShowFloatWindow(MainActivity.this)) {
-                    startService(intent);
-                    //moveTaskToBack(true);
-                    AdbUtil.execShellCmd("input keyevent 3");
+                    if (!AccessbilityUtil.isAccessibilitySettingsOn(MainActivity.this, MyService.class)) {
+                        startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                    } else {
+                        moveTaskToBack(true);
+                    }
                 }
             }
         });
@@ -58,6 +61,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
     }
 }

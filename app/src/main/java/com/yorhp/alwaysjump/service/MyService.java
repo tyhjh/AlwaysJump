@@ -1,42 +1,61 @@
 package com.yorhp.alwaysjump.service;
 
+import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.GestureDescription;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Path;
 import android.graphics.PixelFormat;
-import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.ImageView;
 
 import com.yorhp.alwaysjump.R;
 import com.yorhp.alwaysjump.app.Const;
 import com.yorhp.alwaysjump.jump.Jump;
+import com.yorhp.alwaysjump.jump.OnJump;
 
 import toast.ToastUtil;
 
-public class MyService extends Service {
+public class MyService extends AccessibilityService {
     public MyService() {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public void onAccessibilityEvent(AccessibilityEvent event) {
+
+    }
+
+    @Override
+    public void onInterrupt() {
+
     }
 
 
     @Override
-    public void onCreate() {
-        super.onCreate();
+    protected void onServiceConnected() {
+        super.onServiceConnected();
+        jump.setOnJump(new OnJump() {
+            @Override
+            public void jumpStart(int x, int y, int duration) {
+                clickOnScreen(x, y, duration, null);
+            }
+        });
         createWindowView();
         showNotification(getApplicationContext(), 0, "AlwaysJump", "程序正在运行中");
     }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+    }
+
 
     WindowManager.LayoutParams params;
     WindowManager windowManager;
@@ -50,7 +69,7 @@ public class MyService extends Service {
                 .getSystemService(Context.WINDOW_SERVICE);
         params = new WindowManager.LayoutParams();
         // 设置Window Type
-        params.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
+        params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         // 设置悬浮框不可触摸
         params.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                 | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | FLAG_LAYOUT_INSET_DECOR;
@@ -126,6 +145,7 @@ public class MyService extends Service {
 
     Jump jump = new Jump();
 
+
     private void showNotification(Context context, int id, String title, String text) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setSmallIcon(R.mipmap.ic_triangle);
@@ -140,6 +160,20 @@ public class MyService extends Service {
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(id, notification);
         startForeground(id, notification);
+    }
+
+    private void clickOnScreen(float x, float y, int duration, AccessibilityService.GestureResultCallback callback) {
+        Path path = new Path();
+        path.moveTo(x, y);
+        gestureOnScreen(path, 0, duration, callback);
+    }
+
+    private void gestureOnScreen(Path path, long startTime, long duration,
+                                 AccessibilityService.GestureResultCallback callback) {
+        GestureDescription.Builder builde = new GestureDescription.Builder();
+        builde.addStroke(new GestureDescription.StrokeDescription(path, startTime, duration));
+        GestureDescription gestureDescription = builde.build();
+        dispatchGesture(gestureDescription, callback, null);
     }
 
 }

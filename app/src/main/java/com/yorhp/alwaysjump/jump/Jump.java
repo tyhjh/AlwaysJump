@@ -64,6 +64,9 @@ public class Jump {
     int jumpErroY = 1715;
 
 
+
+
+
     public static double chessHeight = 0.25;//截图比例
     public static double chessStart = 0.4;//开始截图的位置
     public static double jumpHeight = 0.30;
@@ -71,8 +74,8 @@ public class Jump {
     public static int bitmapWidth = 1080;
     public static int bitmapHeight = 1920;
 
-    public static int MIN_DISTENCE = (int) (50 * 1);
-    public static int MAX_DISTENCE = (int) (250 * 1);
+    public static int MIN_DISTENCE = (int) (50*1);
+    public static int MAX_DISTENCE = (int) (250*1);
 
     public static int WHITETIME = 1450;
 
@@ -169,7 +172,6 @@ public class Jump {
         if (start_model != Const.RUN_MODEL_QUICK_JUMP) {
             addBitmap(jumpBitmap);
         }
-
         jumpPoint = findJumpPoint(jumpBitmap);
         recognitionTime.spendTime("识别时间");
 
@@ -570,10 +572,10 @@ public class Jump {
 
     //是否是🎵干扰
     private boolean isDisturb(Bitmap bitmap, int startX, int startY) {
-        for (int y = startY; y < startY + 14; y = y + 1) {
-            if (isLikeBg(bitmap, startX, y)
-                    || isLikeBg(bitmap, startX + (y - startY) / 3, y)
-                    || isLikeBg(bitmap, startX - (y - startY) / 3, y)) {
+        for (int y = startY; y < startY + 15; y++) {
+            if ((isLikeBg(bitmap, startX, y)&&isLikeBg(bitmap, startX, y+10))
+                    || (isLikeBg(bitmap, startX + (y - startY) / 3, y)&&isLikeBg(bitmap, startX + (y - startY)+10 / 3, y))
+                    || (isLikeBg(bitmap, startX - (y - startY) / 3, y)&&isLikeBg(bitmap, startX - (y - startY) / 3-10, y))) {
                 return true;
             }
         }

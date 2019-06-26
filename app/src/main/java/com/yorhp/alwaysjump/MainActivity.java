@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
 
         PermissonUtil.checkPermission(this, null, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-
         btnProc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,8 +50,7 @@ public class MainActivity extends AppCompatActivity {
         btn_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                throw new RuntimeException("测试错误");
-                //Jump.testColor();
+                Jump.testColor();
             }
         });
     }

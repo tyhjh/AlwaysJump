@@ -64,9 +64,6 @@ public class Jump {
     int jumpErroY = 1715;
 
 
-
-
-
     public static double chessHeight = 0.25;//截图比例
     public static double chessStart = 0.4;//开始截图的位置
     public static double jumpHeight = 0.30;
@@ -74,10 +71,10 @@ public class Jump {
     public static int bitmapWidth = 1080;
     public static int bitmapHeight = 1920;
 
-    public static int MIN_DISTENCE = (int) (50*1);
-    public static int MAX_DISTENCE = (int) (250*1);
+    public static int MIN_DISTENCE = (int) (50 * 1);
+    public static int MAX_DISTENCE = (int) (250 * 1);
 
-    public static int WHITETIME = 1400;
+    public static int WHITETIME = 1450;
 
     HsvColorLike hsvColorLike;
     LabColorLike labColorLike;
@@ -133,13 +130,13 @@ public class Jump {
 
         Bitmap bitmap = ScreenRecordUtil.getInstance().getScreenShot();
 
-        bitmapWidth=bitmap.getWidth();
-        bitmapHeight=bitmap.getHeight();
+        bitmapWidth = bitmap.getWidth();
+        bitmapHeight = bitmap.getHeight();
 
         if (ColorUtil.colorLike(bitmap.getPixel(overBluePoint.x, overBluePoint.y), ColorUtil.buleOverColor, 10, labColorLike)
                 && ColorUtil.colorLike(bitmap.getPixel(overGreenPoint.x, overGreenPoint.y), ColorUtil.greenOverColor, 10, labColorLike)) {
             saveGrade(bitmap);
-            onJump.jumpStart(jumpX, jumpY, 10);
+            onJump.jumpStart(jumpErroX, jumpErroY, 10);
             SystemClock.sleep(WHITETIME);
             saveBitmap();
             startTime = System.currentTimeMillis();
@@ -172,20 +169,13 @@ public class Jump {
         if (start_model != Const.RUN_MODEL_QUICK_JUMP) {
             addBitmap(jumpBitmap);
         }
+
         jumpPoint = findJumpPoint(jumpBitmap);
         recognitionTime.spendTime("识别时间");
 
         final int time = getJumpTime(startPoint, jumpPoint);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                onJump.jumpStart(jumpX, jumpY, time);
-            }
-        }).start();
-
-
-        SystemClock.sleep(time + WHITETIME);
+        onJump.jumpStart(jumpX, jumpY, time);
+        SystemClock.sleep(WHITETIME+time);
         allTime.spendTime("跳一次时间");
     }
 
@@ -269,7 +259,15 @@ public class Jump {
         }
 
 
-        Point precisePoint = findCenterPoint(bitmap, jumpPoint);
+        Point precisePoint;
+
+        if (isWhite(bitmap.getPixel(leftPoint.x + 3, leftPoint.y)) && isWhite(bitmap.getPixel(rightPoint.x - 3, rightPoint.y)) && (rightPoint.x - leftPoint.x) < 100) {
+            precisePoint = jumpPoint;
+            LogUtils.e("不找白点");
+        } else {
+            precisePoint = findCenterPoint(bitmap, jumpPoint);
+        }
+
 
         if (start_model != Const.RUN_MODEL_QUICK_JUMP) {
             Bitmap bitmap1 = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -572,7 +570,7 @@ public class Jump {
 
     //是否是🎵干扰
     private boolean isDisturb(Bitmap bitmap, int startX, int startY) {
-        for (int y = startY; y < startY + 20; y = y + 1) {
+        for (int y = startY; y < startY + 14; y = y + 1) {
             if (isLikeBg(bitmap, startX, y)
                     || isLikeBg(bitmap, startX + (y - startY) / 3, y)
                     || isLikeBg(bitmap, startX - (y - startY) / 3, y)) {
@@ -676,8 +674,7 @@ public class Jump {
      * @return
      */
     private int getJumpTime(Point startPoint, Point jumpPoint) {
-        int distence = (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2)
-                + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)));
+        int distence = getPointDistence(startPoint, jumpPoint);
         int time = 0;
         double k = (distence * (-0.00020) + 1.495);
         if (k > 1.4165) {
@@ -686,6 +683,19 @@ public class Jump {
         time = (int) (k * distence);
         LogUtils.e("系数设置为：" + k + "，距离为：" + distence + "，时间为：" + time);
         return time;
+    }
+
+
+    /**
+     * 获取两点之间的距离
+     *
+     * @param startPoint
+     * @param jumpPoint
+     * @return
+     */
+    private int getPointDistence(Point startPoint, Point jumpPoint) {
+        return (int) (Math.sqrt(Math.pow(startPoint.x - jumpPoint.x, 2)
+                + Math.pow(startPoint.y + chessStart * bitmapHeight - jumpPoint.y - jumpStart * bitmapHeight, 2)));
     }
 
 

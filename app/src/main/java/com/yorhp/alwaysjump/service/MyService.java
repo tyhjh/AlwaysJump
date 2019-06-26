@@ -116,7 +116,6 @@ public class MyService extends AccessibilityService {
             @Override
             public void onClick(View view) {
                 //btnView3.setVisibility(View.INVISIBLE);
-                ToastUtil.toast(MyService.this, "have fun");
                 if (Jump.start_model >= Const.RUN_MODEL_TEST_PIC) {
                     new Thread(new Runnable() {
                         @Override
@@ -128,6 +127,7 @@ public class MyService extends AccessibilityService {
                 }
 
                 if (!Jump.start) {
+                    ToastUtil.toast(MyService.this, "have fun");
                     Jump.start = true;
                     new Thread(new Runnable() {
                         @Override
@@ -136,6 +136,7 @@ public class MyService extends AccessibilityService {
                         }
                     }).start();
                 } else {
+                    ToastUtil.toast(MyService.this, "已暂停");
                     Jump.start = false;
                 }
             }
@@ -148,7 +149,7 @@ public class MyService extends AccessibilityService {
 
     private void showNotification(Context context, int id, String title, String text) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-        builder.setSmallIcon(R.mipmap.ic_triangle);
+        builder.setSmallIcon(R.drawable.ic_logo);
         builder.setContentTitle(title);
         builder.setContentText(text);
         builder.setAutoCancel(false);

@@ -116,7 +116,7 @@ public class MyService extends AccessibilityService {
             @Override
             public void onClick(View view) {
                 //btnView3.setVisibility(View.INVISIBLE);
-                ToastUtil.toast(MyService.this, "have fun");
+                ToastUtil.toast(MyService.this, "go go go!!!");
                 if (Jump.start_model >= Const.RUN_MODEL_TEST_PIC) {
                     new Thread(new Runnable() {
                         @Override
@@ -136,6 +136,7 @@ public class MyService extends AccessibilityService {
                         }
                     }).start();
                 } else {
+                    ToastUtil.toast(MyService.this, "已暂停");
                     Jump.start = false;
                 }
             }

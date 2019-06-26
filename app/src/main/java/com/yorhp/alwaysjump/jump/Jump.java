@@ -77,7 +77,7 @@ public class Jump {
     public static int MIN_DISTENCE = (int) (50*1);
     public static int MAX_DISTENCE = (int) (250*1);
 
-    public static int WHITETIME = 1400;
+    public static int WHITETIME = 1700;
 
     HsvColorLike hsvColorLike;
     LabColorLike labColorLike;
@@ -139,7 +139,7 @@ public class Jump {
         if (ColorUtil.colorLike(bitmap.getPixel(overBluePoint.x, overBluePoint.y), ColorUtil.buleOverColor, 10, labColorLike)
                 && ColorUtil.colorLike(bitmap.getPixel(overGreenPoint.x, overGreenPoint.y), ColorUtil.greenOverColor, 10, labColorLike)) {
             saveGrade(bitmap);
-            onJump.jumpStart(jumpX, jumpY, 10);
+            onJump.jumpStart(jumpErroX, jumpErroY, 10);
             SystemClock.sleep(WHITETIME);
             saveBitmap();
             startTime = System.currentTimeMillis();
@@ -524,10 +524,10 @@ public class Jump {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         setBgColor(bitmap.getPixel(3, 3));
-        int ignorePoint = 40;
+        int ignorePoint = 30;
         Point firstPoint = null;
         for (int y = 0; y < height; y = y + ignorePoint) {
-            for (int x = 0; x < width; x = x + 30) {
+            for (int x = 0; x < width; x = x + 20) {
                 if (isLikeBg(bitmap, x, y)) {
                     if (x == 60) {
                         setBgColor(bitmap.getPixel(x, y));
@@ -572,10 +572,10 @@ public class Jump {
 
     //是否是🎵干扰
     private boolean isDisturb(Bitmap bitmap, int startX, int startY) {
-        for (int y = startY; y < startY + 20; y = y + 1) {
-            if (isLikeBg(bitmap, startX, y)
-                    || isLikeBg(bitmap, startX + (y - startY) / 3, y)
-                    || isLikeBg(bitmap, startX - (y - startY) / 3, y)) {
+        for (int y = startY; y < startY + 15; y++) {
+            if ((isLikeBg(bitmap, startX, y)&&isLikeBg(bitmap, startX, y+10))
+                    || (isLikeBg(bitmap, startX + (y - startY) / 3, y)&&isLikeBg(bitmap, startX + (y - startY)+10 / 3, y))
+                    || (isLikeBg(bitmap, startX - (y - startY) / 3, y)&&isLikeBg(bitmap, startX - (y - startY) / 3-10, y))) {
                 return true;
             }
         }
@@ -690,12 +690,15 @@ public class Jump {
 
 
     public static void testColor() {
-        int color1 = Color.parseColor("#bbd1e7");
+        int color1 = Color.parseColor("#dce0dc");
         int color2 = Color.parseColor("#bed3e9");
         LogUtils.e("HSV颜色空间计算颜色距离：" + hsvAberration(color1, color2));
         LogUtils.e("LAB颜色空间计算色差：" + labAberration(color1, color2));
         rgbAberration(color1, color2);
     }
+
+
+
 
 
     private void setBgColor(int bgColor) {

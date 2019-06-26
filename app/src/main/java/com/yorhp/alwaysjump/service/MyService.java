@@ -20,6 +20,8 @@ import com.yorhp.alwaysjump.app.Const;
 import com.yorhp.alwaysjump.jump.Jump;
 import com.yorhp.alwaysjump.jump.OnJump;
 
+import toast.ToastUtil;
+
 public class MyService extends AccessibilityService {
     public MyService() {
     }
